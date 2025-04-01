@@ -398,3 +398,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+TeamB_SSD/ssd_nand.txt
+TeamB_SSD/ssd_output.txt

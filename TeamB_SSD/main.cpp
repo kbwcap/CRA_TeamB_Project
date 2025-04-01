@@ -31,6 +31,7 @@ int main(int argc, char* argv[]) {
   return RUN_ALL_TESTS();
 
 #else
+   VirtualSSD ssd;
 
   if (argc < 2 || argc > 4) {
     std::cerr << "Usage: ssd.exe W <int> <hexadecimal>  or  ssd.exe R <int>" << std::endl;
@@ -51,7 +52,7 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Write Mode: num = " << num << ", hexValue = 0x" << std::hex << hexValue << std::endl;
 
-    // add write function
+    ssd.executeCommand(c, num, hexValue);
 
   }
   else if (c == 'R') {

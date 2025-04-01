@@ -5,8 +5,6 @@
 #include <map>
 #include <iomanip>
 
-
-
 class VirtualSSD {
 public:
     VirtualSSD() {
@@ -15,6 +13,7 @@ public:
         }
         nand_file = "ssd_nand.txt";
         out_file = "ssd_output.txt";
+        readFromFile(nand_file);
     }
 
     bool executeCommand(char cmd, int lba, unsigned int dataHex) {
@@ -68,6 +67,33 @@ private:
         else {
             std::cout << "Error opening file!" << std::endl;
             return false;
+        }
+    }
+
+    void readFromFile(std::string file_name) {
+        std::ifstream file(file_name);
+
+        if (!file.is_open()) {
+            return;
+        }
+
+        std::string line;
+        while (std::getline(file, line)) {
+            std::istringstream iss(line);
+
+            unsigned int index;
+            std::string hexValue;
+
+            if (iss >> index >> hexValue) {
+                unsigned int value = 0;
+                std::stringstream(hexValue) >> std::hex >> value;
+
+
+                storage[index] = value;
+
+
+                std::cout << "A[" << index << "] = 0x" << std::hex << value << std::endl;
+            }
         }
     }
 };
