@@ -2,7 +2,7 @@
 
 ## 팀 소개
  ### 팀명
- Best Reviwers ( 최고의 Reviewer를 지향하는 사람들의 모임)
+ Best Reviewers ( 최고의 Reviewer를 지향하는 사람들의 모임)
 ___
 
  ### 팀원 소개 
