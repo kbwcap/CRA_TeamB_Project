@@ -84,15 +84,11 @@ private:
             unsigned int index;
             std::string hexValue;
 
-            if (iss >> index >> hexValue) {
+            if (iss >> std::dec >> index >> std::hex >> hexValue) {
                 unsigned int value = 0;
                 std::stringstream(hexValue) >> std::hex >> value;
-
-
                 storage[index] = value;
-
-
-                std::cout << "A[" << index << "] = 0x" << std::hex << value << std::endl;
+                //std::cout << "A[" << std::dec << index << "] = 0x" << std::hex << value << std::endl;
             }
         }
     }
