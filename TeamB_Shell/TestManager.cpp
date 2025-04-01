@@ -2,6 +2,8 @@
 #include "TestManager.h"
 #include "gmock/gmock.h"
 #include <iostream>
+using ::testing::Sequence;
+using ::testing::Return;
 
 class MockShell : public IShell {
 public:
@@ -61,14 +63,73 @@ bool readCompare(unsigned int LBA, unsigned int expectedData, MockShell& mockShe
 }
 
 string Test_FullWriteAndReadCompare_1() {
+    MockShell mockShell;
+    const unsigned int minLba = 0;
+    const unsigned int maxLba = 99;
+    const unsigned int step = 5;
 
-    return "FAILED";
+    unsigned int pat;
+    vector<unsigned int> patList;
+    vector<string> writeInput;
+    vector<string> readInput;
+    vector<string> expectedOutputs;
+    Sequence s;
+
+    // generate input for writedata, readdata, and expected result
+    for (unsigned int lba = minLba; lba <= maxLba; lba++) {
+        if (lba % step == 0) {
+            pat = rand() % 0xFFFFFFFF + 1;
+            patList.push_back(pat);
+        }
+
+        string wInput = "w " + std::to_string(lba) + " " + toHexString(pat);
+        string rInput = "r " + std::to_string(lba);
+        writeInput.push_back(wInput);
+        readInput.push_back(rInput);
+        expectedOutputs.push_back(getExpectedReadValue(lba, pat));
+    }
+
+    // Expect Call
+    for (const auto& wInput : writeInput) {
+        EXPECT_CALL(mockShell, executeCommand(wInput)).Times(1);
+    }
+
+    for (const auto& rInput : readInput) {
+        EXPECT_CALL(mockShell, executeCommand(rInput)).Times(1);
+    }
+
+    for (const auto& expected : expectedOutputs) {
+        EXPECT_CALL(mockShell, getOutput())
+            .InSequence(s)
+            .WillOnce(Return(expected));
+    }
+
+    // Verify
+    int patCount = 0;
+    int writeCount = 0;
+    int readCount = 0;
+    for (unsigned int lba = minLba; lba <= maxLba;) {
+        if (lba % step == 0) {
+            pat = patList[patCount++];
+        }
+        for (unsigned int index = 0; index < step; index++) {
+            mockShell.executeCommand(writeInput[writeCount++]);
+        }
+        // readCompare
+        for (unsigned int index = 0; index < step; index++, lba++) {
+            if (readCompare(lba, pat, mockShell) == false) return "FAILED";
+        }
+    }
+
+    return "PASSED";
 }
 
 // TestScripts
 TEST(TestScripts, RunTestAll) {
     TestManager testManager;
     vector<string> tests = testManager.listTests();
+    testManager.registerTest("1_FullWriteAndReadCompare", Test_FullWriteAndReadCompare_1);
+
     for (int testIndex = 0; testIndex < tests.size(); ++testIndex) {
         string result = testManager.runTest(tests[testIndex]);
         std::cout << "[Test: " << tests[testIndex] << "] " << result << std::endl;
@@ -82,5 +143,5 @@ TEST(TestScripts, PrefixTest){
     vector<string> tests = testManager.listTests();
     string result = testManager.runTest("1_");
     std::cout << "[Test: " << tests[0] << "] " << result << std::endl;
-    EXPECT_TRUE(result == "FAILED");
+    EXPECT_TRUE(result == "PASSED");
 }

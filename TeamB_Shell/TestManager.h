@@ -35,3 +35,9 @@ private:
 // lib
 string toHexString(unsigned int value);
 string getExpectedReadValue(unsigned int LBA, unsigned int expectedData);
+
+// ======================
+// 테스트 케이스
+// ======================
+
+string Test_FullWriteAndReadCompare_1();
