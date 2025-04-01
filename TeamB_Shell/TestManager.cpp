@@ -35,6 +35,31 @@ vector<string> TestManager::listTests() {
     return names;
 }
 
+// ======================
+// ReadCompare
+// ======================
+
+string toHexString(unsigned int value) {
+    std::ostringstream ss;
+    ss << "0x" << std::uppercase  // 대문자 A~F
+        << std::hex                // 16진수 출력
+        << std::setfill('0')       // 빈 자리는 0으로 채움
+        << std::setw(8)            // 8자리 고정
+        << value;
+    return ss.str();
+}
+
+string getExpectedReadValue(unsigned int LBA, unsigned int expectedData) {
+    return std::to_string(LBA) + " " + toHexString(expectedData);
+}
+
+bool readCompare(unsigned int LBA, unsigned int expectedData, MockShell& mockShell) {
+    string readInput = "r " + std::to_string(LBA);
+    mockShell.executeCommand(readInput);
+
+    return (mockShell.getOutput() == getExpectedReadValue(LBA, expectedData));
+}
+
 // TestScripts
 TEST(TestScripts, RunTestAll) {
     TestManager testManager;

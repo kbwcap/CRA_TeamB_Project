@@ -31,3 +31,7 @@ public:
 private:
     map<string, TestFn> testCases;
 };
+
+// lib
+string toHexString(unsigned int value);
+string getExpectedReadValue(unsigned int LBA, unsigned int expectedData);
