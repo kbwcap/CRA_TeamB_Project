@@ -60,6 +60,11 @@ bool readCompare(unsigned int LBA, unsigned int expectedData, MockShell& mockShe
     return (mockShell.getOutput() == getExpectedReadValue(LBA, expectedData));
 }
 
+string Test_FullWriteAndReadCompare_1() {
+
+    return "FAILED";
+}
+
 // TestScripts
 TEST(TestScripts, RunTestAll) {
     TestManager testManager;
@@ -69,4 +74,13 @@ TEST(TestScripts, RunTestAll) {
         std::cout << "[Test: " << tests[testIndex] << "] " << result << std::endl;
         EXPECT_TRUE(result == "PASSED");
     }
+}
+
+TEST(TestScripts, PrefixTest){
+    TestManager testManager;
+    testManager.registerTest("1_FullWriteAndReadCompare", Test_FullWriteAndReadCompare_1);
+    vector<string> tests = testManager.listTests();
+    string result = testManager.runTest("1_");
+    std::cout << "[Test: " << tests[0] << "] " << result << std::endl;
+    EXPECT_TRUE(result == "FAILED");
 }
