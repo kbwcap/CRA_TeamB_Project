@@ -4,12 +4,13 @@
 
 TEST(SSDTEST, basic_test)
 {
-  char c = 2;                            // W or R
+  char c = 'W';                            // W or R
   int num = 3;                          // 2
   unsigned int hexValue = 0xAAAABBBB;
-  EXPECT_EQ(2, 2);
+  //VirtualSSD ssd;
+  bool ret = true; // ssd.cmd(c, num, hexValue);
+  EXPECT_TRUE(ret);
 }
-
 
 int main(int argc, char* argv[]) {
 #ifdef _DEBUG
