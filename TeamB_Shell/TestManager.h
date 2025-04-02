@@ -33,3 +33,4 @@ string getExpectedReadValue(unsigned int LBA, unsigned int expectedData);
 // ======================
 
 bool Test_FullWriteAndReadCompare_1();
+bool Test_PartialLBAWrite_2();

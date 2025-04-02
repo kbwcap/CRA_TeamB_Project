@@ -1,9 +1,6 @@
 ﻿#pragma once
 #include "TestManager.h"
-
 #include <iostream>
-#include <regex>
-
 #include "ShellTest.h"
 #include "gmock/gmock.h"
 using ::testing::Return;
@@ -31,7 +28,8 @@ bool TestManager::runTest(const string& name) {
     }
   }
 
-  // Test Shell에서 write, read, exit, help, fullwrite, fullread 이외에 다른 문자가 들어올 경우
+  // Test Shell에서 write, read, exit, help, fullwrite, fullread 이외에 다른
+  // 문자가 들어올 경우
   return false;
 }
 
@@ -127,6 +125,62 @@ bool Test_FullWriteAndReadCompare_1() {
       if (readCompare(lba, pat, mockShell) == false) return false;
     }
   }
+  return true;
+}
+
+bool Test_PartialLBAWrite_2() {
+  MockShell mockShell;
+  vector<string> writeInput;
+  vector<string> readInput;
+  vector<string> expectedOutputs;
+  unsigned int pat;
+  vector<unsigned int> patList;
+  vector<unsigned int> lbaList = {4, 0, 3, 1, 2};
+  Sequence expectedOutputSeq;
+  Sequence readInputSeq;
+
+  for (int loopCount = 0; loopCount < 30; loopCount++) {
+    pat = rand() % 0xFFFFFFFF + 1;
+    patList.push_back(pat);
+    for (int count = 0; count < 5; count++) {
+      string wInput =
+          "w " + std::to_string(lbaList[count]) + " " + toHexString(pat);
+      string rInput = "r " + std::to_string(lbaList[count]);
+      writeInput.push_back(wInput);
+      readInput.push_back(rInput);
+      expectedOutputs.push_back(getExpectedReadValue(lbaList[count], pat));
+    }
+  }
+
+  // Expect Call
+  for (const auto& wInput : writeInput) {
+    EXPECT_CALL(mockShell, executeCommand(wInput)).Times(1);
+  }
+
+  for (const auto& rInput : readInput) {
+    EXPECT_CALL(mockShell, executeCommand(rInput)).InSequence(readInputSeq);
+  }
+
+  for (const auto& expected : expectedOutputs) {
+    EXPECT_CALL(mockShell, getOutput())
+        .InSequence(expectedOutputSeq)
+        .WillOnce(Return(expected));
+  }
+
+  // Test
+  int writeCount = 0;
+  int readCount = 0;
+  for (int loopCount = 0; loopCount < 30; loopCount++) {
+    pat = patList[loopCount];
+    for (int count = 0; count < 5; count++) {
+      mockShell.executeCommand(writeInput[writeCount++]);
+    }
+
+    // readCompare
+    for (int count = 0; count < 5; count++) {
+      if (readCompare(lbaList[count], pat, mockShell) == false) return false;
+    }
+  }
 
   return true;
 }
@@ -136,6 +190,8 @@ class TestScriptFixture : public Test {
   void registerAllTestcases() {
     testManager.registerTest("1_FullWriteAndReadCompare",
                              Test_FullWriteAndReadCompare_1);
+    testManager.registerTest("2_PartialLBAWrite",
+                             Test_PartialLBAWrite_2);
   }
 
   void runTestcase(const std::string& testName) {
