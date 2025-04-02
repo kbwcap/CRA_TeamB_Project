@@ -7,5 +7,11 @@
 
 class ShellTest {
  public:
-  void runShellTest(const std::string& input);
+  void runShellTest(const std::string &input);
+  bool excuteWrite(std::istringstream &iss);
+
+ private:
+  bool checkValidArgument(std::string &trashStr);
+  bool checkValidLba(std::string &lbaStr);
+  bool checkValidValue(std::string &valueStr);
 };

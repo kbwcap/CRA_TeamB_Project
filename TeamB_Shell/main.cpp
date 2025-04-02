@@ -2,7 +2,7 @@
 #include "gmock/gmock.h"
 
 int main() {
-#ifdef UT
+#ifdef _DEBUG
   testing::InitGoogleTest();
   return RUN_ALL_TESTS();
 #endif
