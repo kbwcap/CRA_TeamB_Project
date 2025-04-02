@@ -1,4 +1,4 @@
-#include "gmock/gmock.h"
+ï»¿#include "gmock/gmock.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -17,7 +17,7 @@ void writeOuputFile(string outData) {
 }
 
 void read(int LBA) {
-    // 1. ssd_nane.txt ÆÄÀÏ¿¡¼­ °ª ÀĞ¾î µéÀÌ±â
+    // 1. ssd_nane.txt íŒŒì¼ì—ì„œ ê°’ ì½ì–´ ë“¤ì´ê¸°
     ifstream inputFile("ssd_nand.txt");
     string line;
     vector<pair<int, unsigned int>> values; 
@@ -31,13 +31,13 @@ void read(int LBA) {
     }
     inputFile.close();
 
-    // 2. 0 ~ 99 ¹üÀ§ ¹ş¾î³ª´ÂÁö Ã¼Å© 
+    // 2. 0 ~ 99 ë²”ìœ„ ë²—ì–´ë‚˜ëŠ”ì§€ ì²´í¬ 
     if (LBA < 0  || LBA > 99) {
       writeOuputFile("ERROR");
       return;
     }
  
-    // 3. ±â·ÏµÈ °ªÀÌ ¾øÀ¸¸é 0x00000000 °ª ¸®ÅÏ
+    // 3. ê¸°ë¡ëœ ê°’ì´ ì—†ìœ¼ë©´ 0x00000000 ê°’ ë¦¬í„´
     bool found = false;
     pair<int, unsigned int> findData; 
     for (const auto& pair : values) {
@@ -52,7 +52,7 @@ void read(int LBA) {
       return;
     }
 
-    // 4. LBA °ª ssd_ouput.txt ¿¡ Àû¾îÁÖ±â.
+    // 4. LBA ê°’ ssd_ouput.txt ì— ì ì–´ì£¼ê¸°.
     stringstream ss;
     ss << "LBA " << findData.first << " 0x" << setfill('0') << setw(8) << hex << uppercase << findData.second;
     writeOuputFile(ss.str());
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
   return RUN_ALL_TESTS();
 
 #else
-  // ÇÁ·Î±×·¥ ½ÃÀÛÇÒ¶§ ssd_nand.txt ÆÄÀÏÀÌ ¾øÀ¸¸é »ı¼ºÇØÁÖ±â.
+  // í”„ë¡œê·¸ë¨ ì‹œì‘í• ë•Œ ssd_nand.txt íŒŒì¼ì´ ì—†ìœ¼ë©´ ìƒì„±í•´ì£¼ê¸°.
   ofstream outputFile("ssd_nand.txt", ios::app);
   outputFile.close();
 
@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
 
     int num = std::atoi(argv[2]);
 
-    // read È£ÃâÇÏ±â
+    // read í˜¸ì¶œí•˜ê¸°
     read(num);
     
     //std::cout << "Read Mode: num = " << num << std::endl;
