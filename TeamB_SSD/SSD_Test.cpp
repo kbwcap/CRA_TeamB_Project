@@ -2,7 +2,7 @@
 #include "iostream"
 #include "VirtualSSD.cpp"
 
-TEST(SSDTEST, basic_SSD_test_1)
+TEST(SSDTEST, basic_SSD_test_Write_1)
 {
     char c = 'W';
     int num = 3;
@@ -12,7 +12,7 @@ TEST(SSDTEST, basic_SSD_test_1)
     EXPECT_TRUE(ret);
 }
 
-TEST(SSDTEST, basic_SSD_test_2)
+TEST(SSDTEST, basic_SSD_test_Write_2)
 {
     char c = 'W';
     int num = 3;

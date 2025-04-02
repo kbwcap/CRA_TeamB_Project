@@ -2,43 +2,39 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <map>
 #include <iomanip>
 
 class VirtualSSD {
 public:
-    VirtualSSD() {
+    VirtualSSD(const std::string& nand = "ssd_nand.txt",
+                const std::string& out = "ssd_output.txt")
+      : nand_file(nand), out_file(out){
         for (int i = 0; i < 100; ++i) {
             storage[i] = 0;
         }
-        nand_file = "ssd_nand.txt";
-        out_file = "ssd_output.txt";
         readFromFile(nand_file);
     }
 
     bool executeCommand(char cmd, int lba, unsigned int dataHex) {
 
-        bool ret = true;
-
         if (cmd == 'W' || cmd == 'w') {
-            ret = write(lba, dataHex);
+            return write(lba, dataHex);
         }
         else {
             std::cout << "Unsupported command!" << std::endl;
-            ret = false;
+            return false;
         }
-
-        return ret;
     }
 
 private:
     uint32_t storage[100];
-    std::string nand_file;
-    std::string out_file;
+    const std::string nand_file;
+    const std::string out_file;
+    const int max_range_num = 100;;
 
 
     bool write(int lba, uint32_t data) {
-        if (lba < 0 || lba >= 100) {
+        if (lba < 0 || lba >= max_range_num) {
             std::cout << "LBA out of range!" << std::endl;
             return false;
         }
@@ -53,7 +49,7 @@ private:
         std::ofstream outFile(file_name, std::ios::trunc);
 
         if (outFile.is_open()) {
-            for (int lba = 0; lba < 100; ++lba) {
+            for (int lba = 0; lba < max_range_num; ++lba) {
                 if (storage[lba]) {
                     outFile << std::dec << lba << " 0x"
                         << std::uppercase << std::hex
