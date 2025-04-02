@@ -37,14 +37,14 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Write Mode: num = " << num << ", hexValue = 0x" << std::hex << hexValue << std::endl;
 
-    ssd.executeCommand(c, num, hexValue);
+    ssd.executeCommand(std::make_shared<WriteCommand>(ssd, num, hexValue));
 
   } else if (c == 'R') {
     if (argc != 3) {
       std::cerr << "For 'R' mode, provide 1 argument: <int>" << std::endl;
       return 1;
     }
-    ssd.executeCommand(c, num, 0);
+    ssd.executeCommand(std::make_shared<ReadCommand>(ssd, num));
   }
   else {
     std::cerr << "Invalid mode. Use 'W' for write or 'R' for read." << std::endl;

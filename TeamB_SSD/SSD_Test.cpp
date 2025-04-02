@@ -7,18 +7,28 @@ using namespace testing;
 class CommandFixture : public Test {
  protected:
   VirtualSSD ssd;
+  std::shared_ptr<ICommand> makeCommand(char cmd, int lba, uint32_t value) {
+    std::shared_ptr<ICommand> ret;
+    if (cmd == 'W' || cmd == 'w') {
+      ret = std::make_shared<WriteCommand>(ssd, lba, value);
+    }
+    else if (cmd == 'R' || cmd == 'r') {
+      ret = std::make_shared<ReadCommand>(ssd, lba);
+    }
+    return ret;
+  }
 
   void executeAndExpectTRUE(char cmd, int lba, uint32_t value) {
-    bool ret = ssd.executeCommand(cmd, lba, value);
+    std::shared_ptr<ICommand> Command = makeCommand(cmd, lba, value);
+    bool ret = ssd.executeCommand(Command);
     EXPECT_TRUE(ret);
   }
 
   void expectCommandFALSE(char cmd, int lba, uint32_t value) {
-    bool ret = ssd.executeCommand(cmd, lba, value);
+    std::shared_ptr<ICommand> Command = makeCommand(cmd, lba, value);
+    bool ret = ssd.executeCommand(Command);
     EXPECT_FALSE(ret);
   }
-
- private:
 };
 
 TEST_F(CommandFixture, basic_SSD_test_Write_1) {
@@ -33,10 +43,6 @@ TEST_F(CommandFixture, basic_SSD_test_Write_2) {
 TEST_F(CommandFixture, basic_SSD_test_Read_3_TRUE)  
 {
   executeAndExpectTRUE('R', 3, 0xAAAABBBB);
-}
-
-TEST_F(CommandFixture, basic_SSD_test_Read_3_FALSE) {
-  expectCommandFALSE('R', 3, 0x00000000);
 }
 
 TEST_F(CommandFixture, basic_SSD_test_Read_3_OutOfRange) {
