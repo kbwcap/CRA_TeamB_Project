@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 constexpr const char* ERROR = "ERROR";
 constexpr const char* INVALID = "INVALID";
@@ -21,7 +22,7 @@ class VirtualSSD {
     readFromFile(nand_file);
   }
 
-  bool executeCommand(char cmd, int lba, unsigned int dataHex) {
+  bool executeCommand(char cmd, int lba, uint32_t dataHex) {
     if (cmd == 'W' || cmd == 'w') {
       return write(lba, dataHex);
     } else if (cmd == 'R' || cmd == 'r') {
@@ -87,11 +88,11 @@ class VirtualSSD {
     while (std::getline(file, line)) {
       std::istringstream iss(line);
 
-      unsigned int index;
+      uint32_t index;
       std::string hexValue;
 
       if (iss >> std::dec >> index >> std::hex >> hexValue) {
-        unsigned int value = 0;
+        uint32_t value = 0;
         std::stringstream(hexValue) >> std::hex >> value;
         storage[index] = value;
         // std::cout << "A[" << std::dec << index << "] = 0x" << std::hex <<

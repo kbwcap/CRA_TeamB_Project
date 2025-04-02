@@ -9,6 +9,7 @@
 #include <cctype> 
 #include <algorithm>
 #include "VirtualSSD.cpp"
+#include <cstdint>
 
 int main(int argc, char* argv[]) {
 #ifdef _DEBUG
@@ -32,7 +33,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    unsigned int hexValue = std::strtoul(argv[3], nullptr, 16);
+    uint32_t hexValue = std::strtoul(argv[3], nullptr, 16);
 
     std::cout << "Write Mode: num = " << num << ", hexValue = 0x" << std::hex << hexValue << std::endl;
 
