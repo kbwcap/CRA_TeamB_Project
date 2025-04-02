@@ -1,4 +1,4 @@
-﻿#include "ShellTest.h"
+#include "ShellTest.h"
 #include "gmock/gmock.h"
 
 int main() {
