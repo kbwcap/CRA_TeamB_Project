@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "TestManager.h"
+#include <ctime>
 #include <iostream>
 #include "ShellTest.h"
 #include "gmock/gmock.h"
@@ -45,6 +46,13 @@ vector<string> TestManager::listTests() {
 // ReadCompare
 // ======================
 
+uint32_t patternGenerator(uint32_t& state) {
+  state ^= state << 13;
+  state ^= state >> 17;
+  state ^= state << 5;
+  return state;
+}
+
 string toHexString(unsigned int value) {
   std::ostringstream ss;
   ss << "0x" << std::uppercase  // 대문자 A~F
@@ -80,10 +88,11 @@ bool Test_FullWriteAndReadCompare_1() {
   vector<string> expectedOutputs;
   Sequence s;
 
+  uint32_t seed = static_cast<uint32_t>(time(0));
   // generate input for writedata, readdata, and expected result
   for (unsigned int lba = minLba; lba <= maxLba; lba++) {
     if (lba % step == 0) {
-      pat = rand() % 0xFFFFFFFF + 1;
+      pat = patternGenerator(seed);
       patList.push_back(pat);
     }
 
@@ -138,9 +147,10 @@ bool Test_PartialLBAWrite_2() {
   vector<unsigned int> lbaList = {4, 0, 3, 1, 2};
   Sequence expectedOutputSeq;
   Sequence readInputSeq;
-
-  for (int loopCount = 0; loopCount < 30; loopCount++) {
-    pat = rand() % 0xFFFFFFFF + 1;
+  const int maxLoopCount = 30;
+  uint32_t seed = static_cast<uint32_t>(time(0));
+  for (int loopCount = 0; loopCount < maxLoopCount; loopCount++) {
+    pat = patternGenerator(seed);
     patList.push_back(pat);
     for (int count = 0; count < 5; count++) {
       string wInput =
@@ -170,7 +180,7 @@ bool Test_PartialLBAWrite_2() {
   // Test
   int writeCount = 0;
   int readCount = 0;
-  for (int loopCount = 0; loopCount < 30; loopCount++) {
+  for (int loopCount = 0; loopCount < maxLoopCount; loopCount++) {
     pat = patList[loopCount];
     for (int count = 0; count < 5; count++) {
       mockShell.executeCommand(writeInput[writeCount++]);
@@ -196,7 +206,7 @@ bool Test_WriteReadAging_3() {
   vector<unsigned int> patList;
   unsigned int patFristWrite;
   unsigned int patSecondWrite;
-
+  uint32_t seed = static_cast<uint32_t>(time(0));
   string wInput, rInput;
   for (int loopCount = 0; loopCount < maxLoopCount; loopCount += maxInterval) {
     patList.clear();
@@ -208,7 +218,7 @@ bool Test_WriteReadAging_3() {
     Sequence readInputSeq;
     for (int interval = 0; interval < maxInterval; interval++) {
       // prepare input / output / expected result
-      patFristWrite = rand() % 0xFFFFFFFF + 1;
+      patFristWrite = patternGenerator(seed);
       patList.push_back(patFristWrite);
       wInput = "w " + std::to_string(0) + " " + toHexString(patFristWrite);
       rInput = "r " + std::to_string(0);
@@ -216,7 +226,7 @@ bool Test_WriteReadAging_3() {
       readInput.push_back(rInput);
       expectedOutputs.push_back(getExpectedReadValue(0, patFristWrite));
 
-      patSecondWrite = rand() % 0xFFFFFFFF + 1;
+      patSecondWrite = patternGenerator(seed);
       patList.push_back(patSecondWrite);
       wInput = "w " + std::to_string(99) + " " + toHexString(patSecondWrite);
       rInput = "r " + std::to_string(99);
