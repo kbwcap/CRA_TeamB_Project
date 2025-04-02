@@ -24,3 +24,21 @@ TEST(SSDTEST, basic_SSD_test_Write_2)
     ret = ssd.executeCommand(c, num, hexValue);
     EXPECT_TRUE(ret);
 }
+
+TEST(SSDTEST, basic_SSD_test_Read_3_TRUE) {
+  char c = 'R';
+  int num = 3;
+  unsigned int hexValue = 0xAAAABBBB;
+  VirtualSSD ssd;
+  bool ret = ssd.executeCommand(c, num, hexValue);
+  EXPECT_TRUE(ret);
+}
+
+TEST(SSDTEST, basic_SSD_test_Read_3_FALSE) {
+  char c = 'R';
+  int num = 3;
+  unsigned int hexValue = 0x00000000;
+  VirtualSSD ssd;
+  bool ret = ssd.executeCommand(c, num, hexValue);
+  EXPECT_FALSE(ret);
+}
