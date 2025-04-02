@@ -1,4 +1,4 @@
-﻿#include "ShellTest.h"
+#include "ShellTest.h"
 
 void ShellTest::executeCommand(const std::string &input) {
   std::istringstream iss(input);
@@ -12,9 +12,10 @@ void ShellTest::executeCommand(const std::string &input) {
     if (!excuteRead(iss)) std::cout << invalid_command;
     return;
   } else if (command == "exit") {
-    return;
+    exit(0);
   } else if (command == "help") {
-    // 팀원 이름과 명령어 사용법 출력
+    printHelp();
+    return;
   } else if (command == "fullwrite") {
     if (!excuteFullWrite(iss)) std::cout << invalid_command;
     return;
@@ -28,13 +29,26 @@ void ShellTest::executeCommand(const std::string &input) {
   }
 }
 
+void ShellTest::printHelp() {
+  std::cout
+      << R"(Best Reviewers (A community of individuals who aspire to be the best reviewers) 
+- byeongun.ko [Team Leader]
+- yuz010.kim
+- yunje.kim	
+- hjy.park
+
+[Commands]
+- write LBA Value : Writes the specified Value to the given LBA.
+- read LBA : Reads the Value from the given LBA.
+- exit : Exits the Shell Test.
+- fullwrite Value : Writes the specified Value to all LBAs.
+- fullread : Reads values from all LBAs.
+)" << std::endl;
+}
+
 bool ShellTest::excuteWrite(std::istringstream &iss) {
   std::string lbaStr, valueStr, trashStr;
   iss >> lbaStr >> valueStr >> trashStr;
-
-  // to upper case
-  std::transform(valueStr.begin(), valueStr.end(), valueStr.begin(),
-                 [](unsigned char c) { return std::toupper(c); });
 
   if (!checkValidArgument(trashStr)) return false;
   if (!checkValidLba(lbaStr)) return false;
@@ -64,10 +78,6 @@ bool ShellTest::excuteRead(std::istringstream &iss) {
 bool ShellTest::excuteFullWrite(std::istringstream &iss) {
   std::string valueStr, trashStr;
   iss >> valueStr >> trashStr;
-
-  // to upper case
-  std::transform(valueStr.begin(), valueStr.end(), valueStr.begin(),
-                 [](unsigned char c) { return std::toupper(c); });
 
   if (!checkValidArgument(trashStr)) return false;
   if (!checkValidValue(valueStr)) return false;
@@ -125,11 +135,12 @@ bool ShellTest::checkValidLba(std::string &lbaStr) {
 
 bool ShellTest::checkValidValue(std::string &valueStr) {
   if (valueStr.length() != 10) return false;
-  if (valueStr[0] != '0' || valueStr[1] != 'X') return false;
+  if (valueStr[0] != '0' || valueStr[1] != 'x') return false;
   std::string valueStrSub = valueStr.substr(2);
   for (char valueChar : valueStrSub)
     if ((valueChar < '0' || valueChar > '9') &&
-        (valueChar < 'A' || valueChar > 'F'))
+        (valueChar < 'A' || valueChar > 'F') &&
+        (valueChar < 'a' || valueChar > 'f'))
       return false;
   return true;
 }

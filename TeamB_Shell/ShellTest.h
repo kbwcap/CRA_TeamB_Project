@@ -24,6 +24,7 @@ class ShellTest : public IShell {
   const int MAX_LBA = 100;
 
  private:
+  void printHelp(); 
   bool excuteWrite(std::istringstream &iss);
   bool excuteRead(std::istringstream &iss);
   bool excuteFullWrite(std::istringstream &iss);
