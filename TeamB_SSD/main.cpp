@@ -11,6 +11,25 @@
 #include "VirtualSSD.cpp"
 #include <cstdint>
 
+bool isValidHex(const char* str) {
+  if (strncmp(str, "0x", 2) != 0) {
+    return false;
+  }
+
+  size_t len = strlen(str);
+  if (len != 10) {
+    return false;
+  }
+
+  for (size_t i = 2; i < len; ++i) {
+    if (!isxdigit(str[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 int main(int argc, char* argv[]) {
 #ifdef _DEBUG
   testing::InitGoogleTest();
@@ -30,6 +49,11 @@ int main(int argc, char* argv[]) {
   if (c == 'W') {
     if (argc != 4) {
       std::cerr << "For 'W' mode, provide 2 arguments: <int> <hexadecimal>" << std::endl;
+      return 1;
+    }
+
+    if (!isValidHex(argv[3])) {
+      std::cerr << "Invalid input. Please enter a valid 8-digit hexadecimal value in the form 0xXXXXXXXX.\n";
       return 1;
     }
 
