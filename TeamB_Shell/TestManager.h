@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <string>
 #include <vector>
 #include <map>
@@ -7,7 +7,7 @@ using std::vector;
 using std::map;
 
 // ======================
-// ÀÎÅÍÆäÀÌ½º Á¤ÀÇ
+// ì¸í„°í˜ì´ìŠ¤ ì •ì˜
 // ======================
 
 class IShell {
@@ -17,7 +17,7 @@ public:
 };
 
 // ======================
-// Å×½ºÆ®¿ë Å¸ÀÔ°ú ¸Å´ÏÀú
+// í…ŒìŠ¤íŠ¸ìš© íƒ€ì…ê³¼ ë§¤ë‹ˆì €
 // ======================
 
 typedef string (*TestFn)();
@@ -37,7 +37,7 @@ string toHexString(unsigned int value);
 string getExpectedReadValue(unsigned int LBA, unsigned int expectedData);
 
 // ======================
-// Å×½ºÆ® ÄÉÀÌ½º
+// í…ŒìŠ¤íŠ¸ ì¼€ì´ìŠ¤
 // ======================
 
 string Test_FullWriteAndReadCompare_1();
