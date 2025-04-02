@@ -7,16 +7,22 @@ void ShellTest::executeCommand(const std::string &input) {
 
   if (command == "write") {
     if (!excuteWrite(iss)) {
-      std::cout << "INVALID COMMAND\n";
-    }
+      std::cout << invalid_command;
+    } else
+      std::cout << write_done;
     return;
   } else if (command == "read") {
+    if (!excuteRead(iss)) {
+      std::cout << invalid_command;
+    } else
+      std::cout << read_done + getOutput() + "\n";
+    return;
   } else if (command == "exit") {
   } else if (command == "help") {
   } else if (command == "fullwrite") {
   } else if (command == "fullread") {
   }
-  std::cout << "INVALID COMMAND\n";
+  std::cout << invalid_command;
 }
 
 bool ShellTest::excuteWrite(std::istringstream &iss) {
@@ -33,10 +39,36 @@ bool ShellTest::excuteWrite(std::istringstream &iss) {
 
   std::string newCommand = "ssd.exe W " + lbaStr + " " + valueStr;
   system(newCommand.c_str());
+
   return true;
 }
 
-std::string ShellTest::getOutput() { return std::string(); }
+bool ShellTest::excuteRead(std::istringstream &iss) {
+  std::string lbaStr, trashStr;
+  iss >> lbaStr >> trashStr;
+
+  if (!checkValidArgument(trashStr)) return false;
+  if (!checkValidLba(lbaStr)) return false;
+
+  std::string newCommand = "ssd.exe R " + lbaStr;
+  system(newCommand.c_str());
+
+  return true;
+}
+
+std::string ShellTest::getOutput() { return readFromFile(output_file_name); }
+
+std::string ShellTest::readFromFile(const std::string &output_file_name) {
+  std::ifstream file(output_file_name);
+
+  if (!file.is_open()) {
+    throw std::ios_base::failure("Failed to open file: " + output_file_name);
+  }
+
+  std::string line = "";
+  std::getline(file, line);
+  return line;
+}
 
 bool ShellTest::checkValidArgument(std::string &trashStr) {
   if (trashStr.length() > 0) return false;
