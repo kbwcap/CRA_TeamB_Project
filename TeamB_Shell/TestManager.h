@@ -11,16 +11,17 @@ using std::vector;
 // 테스트용 타입과 매니저
 // ======================
 
-typedef string (*TestFn)();
+typedef bool (*TestFn)();
 
 class TestManager {
-public:
-    void registerTest(const string& name, TestFn func);
-    string runTest(const string& name);
-    vector<string> listTests();
+ public:
+  TestManager() = default;
+  void registerTest(const string& name, TestFn func);
+  bool runTest(const string& name);
+  vector<string> listTests();
 
-private:
-    map<string, TestFn> testCases;
+ private:
+  map<string, TestFn> testCases;
 };
 
 // lib
@@ -31,4 +32,4 @@ string getExpectedReadValue(unsigned int LBA, unsigned int expectedData);
 // 테스트 케이스
 // ======================
 
-string Test_FullWriteAndReadCompare_1();
+bool Test_FullWriteAndReadCompare_1();
