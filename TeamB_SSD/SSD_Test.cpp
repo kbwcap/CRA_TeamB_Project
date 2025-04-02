@@ -7,27 +7,25 @@ using namespace testing;
 class CommandFixture : public Test {
  protected:
   VirtualSSD ssd;
+  std::shared_ptr<ICommand> makeCommand(char cmd, int lba, uint32_t value) {
+    std::shared_ptr<ICommand> ret;
+    if (cmd == 'W' || cmd == 'w') {
+      ret = std::make_shared<WriteCommand>(ssd, lba, value);
+    }
+    else if (cmd == 'R' || cmd == 'r') {
+      ret = std::make_shared<ReadCommand>(ssd, lba);
+    }
+    return ret;
+  }
 
   void executeAndExpectTRUE(char cmd, int lba, uint32_t value) {
-    std::shared_ptr<ICommand> Command;
-  if (cmd == 'W' || cmd == 'w') {
-    Command = std::make_shared<WriteCommand>(ssd, lba, value);
-  }
-  else if (cmd == 'R' || cmd == 'r') {
-    Command = std::make_shared<ReadCommand>(ssd, lba);
-  }
+    std::shared_ptr<ICommand> Command = makeCommand(cmd, lba, value);
     bool ret = ssd.executeCommand(Command);
     EXPECT_TRUE(ret);
   }
 
   void expectCommandFALSE(char cmd, int lba, uint32_t value) {
-    std::shared_ptr<ICommand> Command;
-    if (cmd == 'W' || cmd == 'w') {
-      Command = std::make_shared<WriteCommand>(ssd, lba, value);
-    }
-    else if (cmd == 'R' || cmd == 'r') {
-      Command = std::make_shared<ReadCommand>(ssd, lba);
-    }
+    std::shared_ptr<ICommand> Command = makeCommand(cmd, lba, value);
     bool ret = ssd.executeCommand(Command);
     EXPECT_FALSE(ret);
   }
