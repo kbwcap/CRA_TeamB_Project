@@ -19,6 +19,9 @@ class ShellTest : public IShell {
   bool excuteRead(std::istringstream &iss);
   std::string getOutput();
   std::string readFromFile(const std::string &file);
+  const std::string write_done = "[Write] Done\n";
+  const std::string read_done = "[Read] ";
+  const std::string invalid_command = "INVALID COMMAND\n";
 
  private:
   bool checkValidArgument(std::string &trashStr);

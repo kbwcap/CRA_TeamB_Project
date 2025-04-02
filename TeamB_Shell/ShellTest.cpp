@@ -7,22 +7,22 @@ void ShellTest::executeCommand(const std::string &input) {
 
   if (command == "write") {
     if (!excuteWrite(iss)) {
-      std::cout << "INVALID COMMAND\n";
+      std::cout << invalid_command;
     } else
-      std::cout << "[Write] Done\n";
+      std::cout << write_done;
     return;
   } else if (command == "read") {
     if (!excuteRead(iss)) {
-      std::cout << "INVALID COMMAND\n";
+      std::cout << invalid_command;
     } else
-      std::cout << "[Read] " + getOutput() + "\n";
+      std::cout << read_done + getOutput() + "\n";
     return;
   } else if (command == "exit") {
   } else if (command == "help") {
   } else if (command == "fullwrite") {
   } else if (command == "fullread") {
   }
-  std::cout << "INVALID COMMAND\n";
+  std::cout << invalid_command;
 }
 
 bool ShellTest::excuteWrite(std::istringstream &iss) {
