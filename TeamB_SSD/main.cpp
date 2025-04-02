@@ -11,6 +11,29 @@
 #include "VirtualSSD.cpp"
 #include <cstdint>
 
+bool isValidHex(const char* str) {
+  if (!strncmp(str, "0X", 2)) {
+    return false;
+  }
+
+  if (strncmp(str, "0x", 2)) {
+    return false;
+  }
+
+  size_t len = strlen(str);
+  if (len != 10) {
+    return false;
+  }
+
+  for (size_t i = 2; i < len; ++i) {
+    if (!isxdigit(str[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 int main(int argc, char* argv[]) {
 #ifdef _DEBUG
   testing::InitGoogleTest();
@@ -33,9 +56,12 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    uint32_t hexValue = std::strtoul(argv[3], nullptr, 16);
+    if (!isValidHex(argv[3])) {
+      std::cerr << "Invalid input. Please enter a valid 8-digit hexadecimal value in the form 0xXXXXXXXX.\n";
+      return 1;
+    }
 
-    std::cout << "Write Mode: num = " << num << ", hexValue = 0x" << std::hex << hexValue << std::endl;
+    uint32_t hexValue = std::strtoul(argv[3], nullptr, 16);
 
     ssd.executeCommand(std::make_shared<WriteCommand>(ssd, num, hexValue));
 
