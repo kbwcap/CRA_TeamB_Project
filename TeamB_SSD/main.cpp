@@ -1,4 +1,4 @@
-﻿#include "gmock/gmock.h"
+#include "gmock/gmock.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -8,26 +8,24 @@
 #include <cctype> 
 #include <algorithm>
 
-using namespace std;
-
-void writeOuputFile(string outData) {
-  ofstream outputFile("ssd_output.txt", ios::out);
-  outputFile << outData << endl;
+void writeOuputFile(std::string outData) {
+  std::ofstream outputFile("ssd_output.txt", std::ios::out);
+  outputFile << outData << '\n';
   outputFile.close();
 }
 
 void read(int LBA) {
     // 1. ssd_nane.txt 파일에서 값 읽어 들이기
-    ifstream inputFile("ssd_nand.txt");
-    string line;
-    vector<pair<int, unsigned int>> values; 
+    std::ifstream inputFile("ssd_nand.txt");
+    std::string line;
+    std::vector<std::pair<int, unsigned int>> values; 
     while (getline(inputFile, line)) {
       int index;
       int value;
-      stringstream ss(line);
+      std::stringstream ss(line);
       ss >> index;
-      ss >> hex >> value;
-      values.push_back(make_pair(index, value));
+      ss >> std::hex >> value;
+      values.push_back(std::make_pair(index, value));
     }
     inputFile.close();
 
@@ -39,7 +37,7 @@ void read(int LBA) {
  
     // 3. 기록된 값이 없으면 0x00000000 값 리턴
     bool found = false;
-    pair<int, unsigned int> findData; 
+    std::pair<int, unsigned int> findData; 
     for (const auto& pair : values) {
       if (pair.first == LBA) {  
         found = true;
@@ -53,8 +51,8 @@ void read(int LBA) {
     }
 
     // 4. LBA 값 ssd_ouput.txt 에 적어주기.
-    stringstream ss;
-    ss << "LBA " << findData.first << " 0x" << setfill('0') << setw(8) << hex << uppercase << findData.second;
+    std::stringstream ss;
+    ss << "LBA " << findData.first << " 0x" << std::setfill('0') << std::setw(8) << std::hex << std::uppercase << findData.second;
     writeOuputFile(ss.str());
 }
 
