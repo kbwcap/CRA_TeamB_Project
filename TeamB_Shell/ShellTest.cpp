@@ -1,6 +1,6 @@
 #include "ShellTest.h"
 
-void ShellTest::runShellTest(const std::string &input) {
+void ShellTest::executeCommand(const std::string &input) {
   std::istringstream iss(input);
   std::string command;
   iss >> command;
@@ -35,6 +35,8 @@ bool ShellTest::excuteWrite(std::istringstream &iss) {
   system(newCommand.c_str());
   return true;
 }
+
+std::string ShellTest::getOutput() { return std::string(); }
 
 bool ShellTest::checkValidArgument(std::string &trashStr) {
   if (trashStr.length() > 0) return false;

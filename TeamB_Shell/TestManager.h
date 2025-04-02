@@ -1,20 +1,11 @@
 ﻿#pragma once
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
+
+using std::map;
 using std::string;
 using std::vector;
-using std::map;
-
-// ======================
-// 인터페이스 정의
-// ======================
-
-class IShell {
-public:
-    virtual void executeCommand(const string& cmdLine) = 0;
-    virtual string getOutput() = 0;
-};
 
 // ======================
 // 테스트용 타입과 매니저

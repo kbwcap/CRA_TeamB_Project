@@ -2,13 +2,20 @@
 #include <algorithm>
 #include <cctype>
 #include <iostream>
-#include <string>
 #include <sstream>
+#include <string>
 
-class ShellTest {
+class IShell {
  public:
-  void runShellTest(const std::string &input);
+  virtual void executeCommand(const std::string &cmdLine) = 0;
+  virtual std::string getOutput() = 0;
+};
+
+class ShellTest : public IShell {
+ public:
+  void executeCommand(const std::string &cmdLine);
   bool excuteWrite(std::istringstream &iss);
+  std::string getOutput();
 
  private:
   bool checkValidArgument(std::string &trashStr);

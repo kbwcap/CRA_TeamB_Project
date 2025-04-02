@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "TestManager.h"
 #include "gmock/gmock.h"
+#include "ShellTest.h"
 #include <iostream>
 using ::testing::Sequence;
 using ::testing::Return;
