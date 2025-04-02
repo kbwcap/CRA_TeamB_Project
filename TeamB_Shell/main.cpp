@@ -2,6 +2,9 @@
 #include "iostream"
 
 int main(int argc, char* argv[]) {
-
-  return 0;
+#ifdef _DEBUG
+	::testing::InitGoogleMock();
+	return RUN_ALL_TESTS();
+#endif  // DEBUG
+	return 0;
 }
