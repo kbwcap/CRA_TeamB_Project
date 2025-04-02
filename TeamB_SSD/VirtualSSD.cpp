@@ -64,6 +64,7 @@ private:
             std::cout << "Error opening file!" << std::endl;
             return false;
         }
+        return true;
     }
 
     void readFromFile(std::string file_name) {
