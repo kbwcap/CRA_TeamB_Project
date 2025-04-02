@@ -1,4 +1,4 @@
-#include "ShellTest.h"
+ï»¿#include "ShellTest.h"
 
 #include "gmock/gmock.h"
 
@@ -48,7 +48,7 @@ TEST_F(CommandFixture, WriteValueInvalid) {
 TEST_F(CommandFixture, ReadValid) {
   NiceMock<MockShellTest> mockShell;
 
-  // ssd_output.txt ÆÄÀÏÀÌ Á¸ÀçÇÏÁö ¾Ê´Â °æ¿ì¿¡µµ Å×½ºÆ®ÇÏ±â À§ÇØ MockÀ» »ç¿ë
+  // ssd_output.txt íŒŒì¼ì´ ì¡´ì¬í•˜ì§€ ì•ŠëŠ” ê²½ìš°ì—ë„ í…ŒìŠ¤íŠ¸í•˜ê¸° ìœ„í•´ Mockì„ ì‚¬ìš©
   EXPECT_CALL(mockShell, getOutput())
       .Times(1)
       .WillRepeatedly(Return("LBA 30 0xFFFFFFFF"));
@@ -67,7 +67,7 @@ TEST_F(CommandFixture, ReadLbaInvalid) {
   EXPECT_EQ(buffer.str(), "INVALID COMMAND\n");
 }
 
-// Á¸ÀçÇÏÁö ¾Ê´Â ÆÄÀÏÀ» ÀĞ¾î exception ¹ß»ı½ÃÅ´
+// ì¡´ì¬í•˜ì§€ ì•ŠëŠ” íŒŒì¼ì„ ì½ì–´ exception ë°œìƒì‹œí‚´
 TEST_F(CommandFixture, FileNotExistException) {
   EXPECT_THROW(shellTest.readFromFile("yunje_Not_Exist_file.txt"),
                std::ios_base::failure);
