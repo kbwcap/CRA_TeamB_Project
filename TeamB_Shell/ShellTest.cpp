@@ -1,4 +1,4 @@
-#include "ShellTest.h"
+ï»¿#include "ShellTest.h"
 
 void ShellTest::executeCommand(const std::string &input) {
   std::istringstream iss(input);
@@ -14,7 +14,7 @@ void ShellTest::executeCommand(const std::string &input) {
   } else if (command == "exit") {
     return;
   } else if (command == "help") {
-    // ÆÀ¿ø ÀÌ¸§°ú ¸í·É¾î »ç¿ë¹ı Ãâ·Â
+    // íŒ€ì› ì´ë¦„ê³¼ ëª…ë ¹ì–´ ì‚¬ìš©ë²• ì¶œë ¥
   } else if (command == "fullwrite") {
     if (!excuteFullWrite(iss)) std::cout << invalid_command;
     return;
@@ -22,7 +22,7 @@ void ShellTest::executeCommand(const std::string &input) {
     if (!excuteFullRead(iss)) std::cout << invalid_command;
     return;
   } else {
-    // Test Script ¼öÇà
+    // Test Script ìˆ˜í–‰
     // if(!TestManager::runTest)
     std::cout << invalid_command;
   }
