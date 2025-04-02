@@ -50,10 +50,6 @@ bool ShellTest::excuteWrite(std::istringstream &iss) {
   std::string lbaStr, valueStr, trashStr;
   iss >> lbaStr >> valueStr >> trashStr;
 
-  // to upper case
-  std::transform(valueStr.begin(), valueStr.end(), valueStr.begin(),
-                 [](unsigned char c) { return std::toupper(c); });
-
   if (!checkValidArgument(trashStr)) return false;
   if (!checkValidLba(lbaStr)) return false;
   if (!checkValidValue(valueStr)) return false;
@@ -82,10 +78,6 @@ bool ShellTest::excuteRead(std::istringstream &iss) {
 bool ShellTest::excuteFullWrite(std::istringstream &iss) {
   std::string valueStr, trashStr;
   iss >> valueStr >> trashStr;
-
-  // to upper case
-  std::transform(valueStr.begin(), valueStr.end(), valueStr.begin(),
-                 [](unsigned char c) { return std::toupper(c); });
 
   if (!checkValidArgument(trashStr)) return false;
   if (!checkValidValue(valueStr)) return false;
@@ -143,11 +135,12 @@ bool ShellTest::checkValidLba(std::string &lbaStr) {
 
 bool ShellTest::checkValidValue(std::string &valueStr) {
   if (valueStr.length() != 10) return false;
-  if (valueStr[0] != '0' || valueStr[1] != 'X') return false;
+  if (valueStr[0] != '0' || valueStr[1] != 'x') return false;
   std::string valueStrSub = valueStr.substr(2);
   for (char valueChar : valueStrSub)
     if ((valueChar < '0' || valueChar > '9') &&
-        (valueChar < 'A' || valueChar > 'F'))
+        (valueChar < 'A' || valueChar > 'F') &&
+        (valueChar < 'a' || valueChar > 'f'))
       return false;
   return true;
 }
