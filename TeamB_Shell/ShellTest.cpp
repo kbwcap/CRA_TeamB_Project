@@ -1,4 +1,4 @@
-﻿#include "ShellTest.h"
+#include "ShellTest.h"
 
 void ShellTest::executeCommand(const std::string &input) {
   std::istringstream iss(input);
@@ -12,9 +12,10 @@ void ShellTest::executeCommand(const std::string &input) {
     if (!excuteRead(iss)) std::cout << invalid_command;
     return;
   } else if (command == "exit") {
-    return;
+    exit(0);
   } else if (command == "help") {
-    // 팀원 이름과 명령어 사용법 출력
+    printHelp();
+    return;
   } else if (command == "fullwrite") {
     if (!excuteFullWrite(iss)) std::cout << invalid_command;
     return;
@@ -26,6 +27,23 @@ void ShellTest::executeCommand(const std::string &input) {
     // if(!TestManager::runTest)
     std::cout << invalid_command;
   }
+}
+
+void ShellTest::printHelp() {
+  std::cout
+      << R"(Best Reviewers (최고의 Reviewer를 지향하는 사람들의 모임) 
+- 고병운 [팀장]
+- 김유증
+- 김윤제
+- 박화영
+
+[명령어]
+- write LBA Value : LBA에 Value를 씁니다.
+- read LBA : LBA의 Value를 읽습니다.
+- exit : Shell Test를 종료합니다.
+- fullwrite Value : 전체 LBA에 Value를 씁니다.
+- fullread : 전체 LBA를 읽습니다.
+)" << std::endl;
 }
 
 bool ShellTest::excuteWrite(std::istringstream &iss) {
