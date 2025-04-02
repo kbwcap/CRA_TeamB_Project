@@ -45,6 +45,7 @@ class VirtualSSD {
       storage[lba] = data;
       writeToFile(nand_file);
     }
+    return true;
   }
 
   bool isOutofRange(int lba) {
