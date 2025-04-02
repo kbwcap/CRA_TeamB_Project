@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <map>
 #include <string>
 #include <vector>
@@ -27,7 +27,7 @@ class TestManager {
 // lib
 uint32_t patternGenerator(uint32_t& state);
 string toHexString(unsigned int value);
-string getExpectedReadValue(unsigned int LBA, unsigned int expectedData);
+string getExpectedReadValue(int LBA, unsigned int expectedData);
 
 // ======================
 // 테스트 케이스

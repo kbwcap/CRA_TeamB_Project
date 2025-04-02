@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "TestManager.h"
 #include <ctime>
 #include <iostream>
@@ -63,12 +63,11 @@ string toHexString(unsigned int value) {
   return ss.str();
 }
 
-string getExpectedReadValue(unsigned int LBA, unsigned int expectedData) {
+string getExpectedReadValue(int LBA, unsigned int expectedData) {
   return std::to_string(LBA) + " " + toHexString(expectedData);
 }
 
-bool readCompare(unsigned int LBA, unsigned int expectedData,
-                 MockShell& mockShell) {
+bool readCompare(int LBA, unsigned int expectedData, MockShell& mockShell) {
   string readInput = "r " + std::to_string(LBA);
   mockShell.executeCommand(readInput);
 
@@ -77,8 +76,8 @@ bool readCompare(unsigned int LBA, unsigned int expectedData,
 
 bool Test_FullWriteAndReadCompare_1() {
   MockShell mockShell;
-  const unsigned int minLba = 0;
-  const unsigned int maxLba = 99;
+  const int minLba = 0;
+  const int maxLba = 99;
   const unsigned int step = 5;
 
   unsigned int pat;
@@ -90,7 +89,7 @@ bool Test_FullWriteAndReadCompare_1() {
 
   uint32_t seed = static_cast<uint32_t>(time(0));
   // generate input for writedata, readdata, and expected result
-  for (unsigned int lba = minLba; lba <= maxLba; lba++) {
+  for (int lba = minLba; lba <= maxLba; lba++) {
     if (lba % step == 0) {
       pat = patternGenerator(seed);
       patList.push_back(pat);
@@ -122,7 +121,7 @@ bool Test_FullWriteAndReadCompare_1() {
   int patCount = 0;
   int writeCount = 0;
   int readCount = 0;
-  for (unsigned int lba = minLba; lba <= maxLba;) {
+  for (int lba = minLba; lba <= maxLba;) {
     if (lba % step == 0) {
       pat = patList[patCount++];
     }
@@ -144,7 +143,7 @@ bool Test_PartialLBAWrite_2() {
   vector<string> expectedOutputs;
   unsigned int pat;
   vector<unsigned int> patList;
-  vector<unsigned int> lbaList = {4, 0, 3, 1, 2};
+  vector<int> lbaList = {4, 0, 3, 1, 2};
   Sequence expectedOutputSeq;
   Sequence readInputSeq;
   const int maxLoopCount = 30;
