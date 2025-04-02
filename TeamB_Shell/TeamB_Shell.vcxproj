@@ -129,12 +129,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ShellTest.cpp" />
+    <ClCompile Include="ShellTest_Test.cpp" />
     <ClCompile Include="TestManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ShellTest.h" />
     <ClInclude Include="TestManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
