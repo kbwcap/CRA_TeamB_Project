@@ -185,13 +185,85 @@ bool Test_PartialLBAWrite_2() {
   return true;
 }
 
+bool Test_WriteReadAging_3() {
+  MockShell mockShell;
+
+  const int maxLoopCount = 200;
+  const int maxInterval = 50;
+  vector<string> writeInput;
+  vector<string> readInput;
+  vector<string> expectedOutputs;
+  vector<unsigned int> patList;
+  unsigned int patFristWrite;
+  unsigned int patSecondWrite;
+
+  string wInput, rInput;
+  for (int loopCount = 0; loopCount < maxLoopCount; loopCount += maxInterval) {
+    patList.clear();
+    writeInput.clear();
+    readInput.clear();
+    expectedOutputs.clear();
+    Sequence expectedOutputSeq;
+    Sequence writeInputSeq;
+    Sequence readInputSeq;
+    for (int interval = 0; interval < maxInterval; interval++) {
+      // prepare input / output / expected result
+      patFristWrite = rand() % 0xFFFFFFFF + 1;
+      patList.push_back(patFristWrite);
+      wInput = "w " + std::to_string(0) + " " + toHexString(patFristWrite);
+      rInput = "r " + std::to_string(0);
+      writeInput.push_back(wInput);
+      readInput.push_back(rInput);
+      expectedOutputs.push_back(getExpectedReadValue(0, patFristWrite));
+
+      patSecondWrite = rand() % 0xFFFFFFFF + 1;
+      patList.push_back(patSecondWrite);
+      wInput = "w " + std::to_string(99) + " " + toHexString(patSecondWrite);
+      rInput = "r " + std::to_string(99);
+      writeInput.push_back(wInput);
+      readInput.push_back(rInput);
+      expectedOutputs.push_back(getExpectedReadValue(99, patSecondWrite));
+    }
+
+    // expect call
+    for (const auto& wInput : writeInput) {
+      EXPECT_CALL(mockShell, executeCommand(wInput)).InSequence(writeInputSeq);
+    }
+
+    for (const auto& rInput : readInput) {
+      EXPECT_CALL(mockShell, executeCommand(rInput)).InSequence(readInputSeq);
+    }
+
+    for (const auto& expected : expectedOutputs) {
+      EXPECT_CALL(mockShell, getOutput())
+          .InSequence(expectedOutputSeq)
+          .WillOnce(Return(expected));
+    }
+
+    // test
+    int writeCount = 0;
+    int readCount = 0;
+    int patCount = 0;
+    for (int interval = 0; interval < maxInterval; interval++) {
+      mockShell.executeCommand(writeInput[writeCount++]);
+      mockShell.executeCommand(writeInput[writeCount++]);
+      // readCompare
+      if (readCompare(0, patList[patCount++], mockShell) == false) return false;
+      if (readCompare(99, patList[patCount++], mockShell) == false)
+        return false;
+    }
+  }
+
+  return true;
+}
+
 class TestScriptFixture : public Test {
  public:
   void registerAllTestcases() {
     testManager.registerTest("1_FullWriteAndReadCompare",
                              Test_FullWriteAndReadCompare_1);
-    testManager.registerTest("2_PartialLBAWrite",
-                             Test_PartialLBAWrite_2);
+    testManager.registerTest("2_PartialLBAWrite", Test_PartialLBAWrite_2);
+    testManager.registerTest("3_WriteReadAging", Test_WriteReadAging_3);
   }
 
   void runTestcase(const std::string& testName) {
