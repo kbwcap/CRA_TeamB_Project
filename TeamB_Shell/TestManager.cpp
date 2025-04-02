@@ -20,7 +20,7 @@ void TestManager::registerTest(const string& name, TestFn func) {
   testCases[name] = func;
 }
 
-string TestManager::runTest(const string& name) {
+bool TestManager::runTest(const string& name) {
   // 정확히 일치하는 테스트가 있다면 먼저 실행
   if (testCases.count(name)) return testCases[name]();
 
@@ -31,7 +31,8 @@ string TestManager::runTest(const string& name) {
     }
   }
 
-  return "Unknown test case: " + name;
+  // Test Shell에서 write, read, exit, help, fullwrite, fullread 이외에 다른 문자가 들어올 경우
+  return false;
 }
 
 vector<string> TestManager::listTests() {
@@ -68,7 +69,7 @@ bool readCompare(unsigned int LBA, unsigned int expectedData,
   return (mockShell.getOutput() == getExpectedReadValue(LBA, expectedData));
 }
 
-string Test_FullWriteAndReadCompare_1() {
+bool Test_FullWriteAndReadCompare_1() {
   MockShell mockShell;
   const unsigned int minLba = 0;
   const unsigned int maxLba = 99;
@@ -123,11 +124,11 @@ string Test_FullWriteAndReadCompare_1() {
     }
     // readCompare
     for (unsigned int index = 0; index < step; index++, lba++) {
-      if (readCompare(lba, pat, mockShell) == false) return "FAILED";
+      if (readCompare(lba, pat, mockShell) == false) return false;
     }
   }
 
-  return "PASSED";
+  return true;
 }
 
 class TestScriptFixture : public Test {
@@ -138,9 +139,9 @@ class TestScriptFixture : public Test {
   }
 
   void runTestcase(const std::string& testName) {
-    string result = testManager.runTest(testName);
+    bool result = testManager.runTest(testName);
     std::cout << "[Test: " << testName << "] " << result << std::endl;
-    EXPECT_TRUE(result == "PASSED");
+    EXPECT_TRUE(result);
   }
 
   void runPrefixTestcase(const std::string& testName) {
@@ -154,9 +155,9 @@ class TestScriptFixture : public Test {
     try {
       std::string strNum = testName.substr(0, pos);
       int number = std::stoi(strNum);
-      string result = testManager.runTest(strNum + "_");
+      bool result = testManager.runTest(strNum + "_");
       std::cout << "[Test: " << testName << "] " << result << std::endl;
-      EXPECT_TRUE(result == "PASSED");
+      EXPECT_TRUE(result);
     } catch (const std::invalid_argument& e) {
       std::cout << "there is not Number\n";
     }
