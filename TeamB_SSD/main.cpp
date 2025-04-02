@@ -12,7 +12,11 @@
 #include <cstdint>
 
 bool isValidHex(const char* str) {
-  if (strncmp(str, "0x", 2) != 0) {
+  if (!strncmp(str, "0X", 2)) {
+    return false;
+  }
+
+  if (strncmp(str, "0x", 2)) {
     return false;
   }
 
@@ -58,8 +62,6 @@ int main(int argc, char* argv[]) {
     }
 
     uint32_t hexValue = std::strtoul(argv[3], nullptr, 16);
-
-    std::cout << "Write Mode: num = " << num << ", hexValue = 0x" << std::hex << hexValue << std::endl;
 
     ssd.executeCommand(std::make_shared<WriteCommand>(ssd, num, hexValue));
 
