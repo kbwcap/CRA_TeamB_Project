@@ -72,3 +72,18 @@ TEST_F(CommandFixture, FileNotExistException) {
   EXPECT_THROW(shellTest.readFromFile("yunje_Not_Exist_file.txt"),
                std::ios_base::failure);
 }
+
+TEST_F(CommandFixture, FullWriteValid) {
+  shellTest.executeCommand("fullwrite 0xAAAABBBB\n");
+  EXPECT_EQ(buffer.str(), shellTest.fullwrite_done);
+}
+
+TEST_F(CommandFixture, FullWriteCmdInvalid) {
+  shellTest.executeCommand("fullwrite 0xFFFFFFFF gogo\n");
+  EXPECT_EQ(buffer.str(), shellTest.invalid_command);
+}
+
+TEST_F(CommandFixture, FullWriteValueInvalid) {
+  shellTest.executeCommand("fullwrite 0xFFFFF\n");
+  EXPECT_EQ(buffer.str(), shellTest.invalid_command);
+}

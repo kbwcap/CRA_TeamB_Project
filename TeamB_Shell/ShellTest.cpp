@@ -18,11 +18,26 @@ void ShellTest::executeCommand(const std::string &input) {
       std::cout << read_done + getOutput() + "\n";
     return;
   } else if (command == "exit") {
+    return;
   } else if (command == "help") {
+    // 팀원 이름과 명령어 사용법 출력
   } else if (command == "fullwrite") {
+    if (!excuteFullWrite(iss)) {
+      std::cout << invalid_command;
+    } else
+      std::cout << fullwrite_done;
+    return;
   } else if (command == "fullread") {
+    if (!excuteFullWrite(iss)) {
+      std::cout << invalid_command;
+    } else
+      std::cout << fullwrite_done;
+    return;
+  } else {
+    // Test Script 수행
+    // TestManager::runTest
+    std::cout << invalid_command;
   }
-  std::cout << invalid_command;
 }
 
 bool ShellTest::excuteWrite(std::istringstream &iss) {
@@ -55,6 +70,27 @@ bool ShellTest::excuteRead(std::istringstream &iss) {
 
   return true;
 }
+
+bool ShellTest::excuteFullWrite(std::istringstream &iss) {
+  std::string valueStr, trashStr;
+  iss >> valueStr >> trashStr;
+
+  // to upper case
+  std::transform(valueStr.begin(), valueStr.end(), valueStr.begin(),
+                 [](unsigned char c) { return std::toupper(c); });
+
+  if (!checkValidArgument(trashStr)) return false;
+  if (!checkValidValue(valueStr)) return false;
+
+  for (int LbaNum = 0; LbaNum < MAX_LBA; LbaNum++) {
+    std::string newCommand = "ssd.exe W " + std::to_string(LbaNum) + " " + valueStr;
+    system(newCommand.c_str());
+  }
+
+  return true;
+}
+
+bool ShellTest::excuteFullRead(std::istringstream &iss) { return false; }
 
 std::string ShellTest::getOutput() { return readFromFile(output_file_name); }
 

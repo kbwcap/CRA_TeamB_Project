@@ -15,17 +15,21 @@ class IShell {
 class ShellTest : public IShell {
  public:
   void executeCommand(const std::string &cmdLine);
-  bool excuteWrite(std::istringstream &iss);
-  bool excuteRead(std::istringstream &iss);
   std::string getOutput();
   std::string readFromFile(const std::string &file);
   const std::string write_done = "[Write] Done\n";
   const std::string read_done = "[Read] ";
+  const std::string fullwrite_done = "[FullWrite] Done\n";
   const std::string invalid_command = "INVALID COMMAND\n";
-
+  
  private:
+  bool excuteWrite(std::istringstream &iss);
+  bool excuteRead(std::istringstream &iss);
+  bool excuteFullWrite(std::istringstream &iss);
+  bool excuteFullRead(std::istringstream &iss);
   bool checkValidArgument(std::string &trashStr);
   bool checkValidLba(std::string &lbaStr);
   bool checkValidValue(std::string &valueStr);
   const std::string output_file_name = "ssd_output.txt";
+  const int MAX_LBA = 100;
 };
