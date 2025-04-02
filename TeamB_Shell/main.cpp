@@ -12,6 +12,6 @@ int main() {
     std::string input;
     std::cout << "> ";
     std::getline(std::cin, input);
-    shellTest.runShellTest(input);
+    shellTest.executeCommand(input);
   }
 }
