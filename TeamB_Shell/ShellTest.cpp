@@ -31,28 +31,24 @@ void ShellTest::executeCommand(const std::string &input) {
 
 void ShellTest::printHelp() {
   std::cout
-      << R"(Best Reviewers (최고의 Reviewer를 지향하는 사람들의 모임) 
-- 고병운 [팀장]
-- 김유증
-- 김윤제
-- 박화영
+      << R"(Best Reviewers (A community of individuals who aspire to be the best reviewers) 
+- byeongun.ko [Team Leader]
+- yuz010.kim
+- yunje.kim	
+- hjy.park
 
-[명령어]
-- write LBA Value : LBA에 Value를 씁니다.
-- read LBA : LBA의 Value를 읽습니다.
-- exit : Shell Test를 종료합니다.
-- fullwrite Value : 전체 LBA에 Value를 씁니다.
-- fullread : 전체 LBA를 읽습니다.
+[Commands]
+- write LBA Value : Writes the specified Value to the given LBA.
+- read LBA : Reads the Value from the given LBA.
+- exit : Exits the Shell Test.
+- fullwrite Value : Writes the specified Value to all LBAs.
+- fullread : Reads values from all LBAs.
 )" << std::endl;
 }
 
 bool ShellTest::excuteWrite(std::istringstream &iss) {
   std::string lbaStr, valueStr, trashStr;
   iss >> lbaStr >> valueStr >> trashStr;
-
-  // to upper case
-  std::transform(valueStr.begin(), valueStr.end(), valueStr.begin(),
-                 [](unsigned char c) { return std::toupper(c); });
 
   if (!checkValidArgument(trashStr)) return false;
   if (!checkValidLba(lbaStr)) return false;
@@ -82,10 +78,6 @@ bool ShellTest::excuteRead(std::istringstream &iss) {
 bool ShellTest::excuteFullWrite(std::istringstream &iss) {
   std::string valueStr, trashStr;
   iss >> valueStr >> trashStr;
-
-  // to upper case
-  std::transform(valueStr.begin(), valueStr.end(), valueStr.begin(),
-                 [](unsigned char c) { return std::toupper(c); });
 
   if (!checkValidArgument(trashStr)) return false;
   if (!checkValidValue(valueStr)) return false;
@@ -143,11 +135,12 @@ bool ShellTest::checkValidLba(std::string &lbaStr) {
 
 bool ShellTest::checkValidValue(std::string &valueStr) {
   if (valueStr.length() != 10) return false;
-  if (valueStr[0] != '0' || valueStr[1] != 'X') return false;
+  if (valueStr[0] != '0' || valueStr[1] != 'x') return false;
   std::string valueStrSub = valueStr.substr(2);
   for (char valueChar : valueStrSub)
     if ((valueChar < '0' || valueChar > '9') &&
-        (valueChar < 'A' || valueChar > 'F'))
+        (valueChar < 'A' || valueChar > 'F') &&
+        (valueChar < 'a' || valueChar > 'f'))
       return false;
   return true;
 }
