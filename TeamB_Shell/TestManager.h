@@ -25,6 +25,7 @@ class TestManager {
 };
 
 // lib
+uint32_t patternGenerator(uint32_t& state);
 string toHexString(unsigned int value);
 string getExpectedReadValue(unsigned int LBA, unsigned int expectedData);
 
