@@ -21,7 +21,8 @@ class ShellTest : public IShell {
   const std::string read_done = "[Read] ";
   const std::string fullwrite_done = "[FullWrite] Done\n";
   const std::string invalid_command = "INVALID COMMAND\n";
-  
+  const int MAX_LBA = 100;
+
  private:
   bool excuteWrite(std::istringstream &iss);
   bool excuteRead(std::istringstream &iss);
@@ -31,5 +32,4 @@ class ShellTest : public IShell {
   bool checkValidLba(std::string &lbaStr);
   bool checkValidValue(std::string &valueStr);
   const std::string output_file_name = "ssd_output.txt";
-  const int MAX_LBA = 100;
 };
