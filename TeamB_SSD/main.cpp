@@ -58,35 +58,67 @@ void read(int LBA) {
     writeOuputFile(ss.str());
 }
 
-int main() {
-    // 프로그램 시작할때 ssd_nand.txt 파일이 없으면 생성해주기.
-    ofstream outputFile("ssd_nand.txt", ios::app);
-    outputFile.close();
+TEST(SSDTEST, basic_test)
+{
+  char c = 2;                            // W or R
+  int num = 3;                          // 2
+  unsigned int hexValue = 0xAAAABBBB;
+  EXPECT_EQ(2, 2);
+}
 
-    // 사용자에게 입력 받기
-    string input;
-    while (true) {
-      getline(cin, input);
+int main(int argc, char* argv[]) {
+#ifdef _DEBUG
+  testing::InitGoogleTest();
+  return RUN_ALL_TESTS();
 
-      // "exit" 명령어 입력 시 쉘 종료
-      if (input == "exit") {
-        cout << "쉘을 종료합니다." << endl;
-        break;
-      } 
-      
-      // read 호출하기
-      stringstream ss(input);
-      string command;
-      int index = 0;
-      ss >> command;    
-      ss >> index;
-      transform(command.begin(), command.end(), command.begin(), ::toupper);
-      if (command == "R") {
-        read(index);
-      }
+#else
+  // 프로그램 시작할때 ssd_nand.txt 파일이 없으면 생성해주기.
+  ofstream outputFile("ssd_nand.txt", ios::app);
+  outputFile.close();
+
+
+  if (argc < 2 || argc > 4) {
+    std::cerr << "Usage: ssd.exe W <int> <hexadecimal>  or  ssd.exe R <int>" << std::endl;
+    return 1;
+  }
+
+  char c = argv[1][0];
+
+  if (c == 'W') {
+    if (argc != 4) {
+      std::cerr << "For 'W' mode, provide 2 arguments: <int> <hexadecimal>" << std::endl;
+      return 1;
     }
 
-    // 테스트...
-    testing::InitGoogleTest();
-    return RUN_ALL_TESTS();
+    int num = std::atoi(argv[2]);
+
+    unsigned int hexValue = std::strtoul(argv[3], nullptr, 16);
+
+    std::cout << "Write Mode: num = " << num << ", hexValue = 0x" << std::hex << hexValue << std::endl;
+
+    // add write function
+
+  }
+  else if (c == 'R') {
+    if (argc != 3) {
+      std::cerr << "For 'R' mode, provide 1 argument: <int>" << std::endl;
+      return 1;
+    }
+
+    int num = std::atoi(argv[2]);
+
+    // read 호출하기
+    read(num);
+    
+    //std::cout << "Read Mode: num = " << num << std::endl;
+
+    // add  Read fucntion
+
+  }
+  else {
+    std::cerr << "Invalid mode. Use 'W' for write or 'R' for read." << std::endl;
+    return 1;
+  }
+#endif
+  return 0;
 }
