@@ -12,6 +12,8 @@ int main() {
                            +Test_FullWriteAndReadCompare_1);
   testManager.registerTest("2_PartialLBAWrite", Test_PartialLBAWrite_2);
   testManager.registerTest("3_WriteReadAging", Test_WriteReadAging_3);
+  testManager.registerTest("4_EraseAndWriteAging", Test_EraseAndWriteAging_4);
+
   ShellTest shellTest{&testManager};
   while (true) {
     std::string input;
