@@ -7,10 +7,13 @@
   * [팀원 소개](#팀원-소개)
   * [Ground Rule](#Ground-Rule)
 * [Team Project 미션 1](#Team-Project-미션-1)
-  * [SSD](#SSD)
-  * [Test Shell](#Test-Shell)
-  * [Test Script](#Test-Script)
-
+  * [SSD](#SSD-미션1)
+  * [Test Shell](#Test-Shell-미션1)
+  * [Test Script](#Test-Script-미션1)
+* [Team Project 미션 2](#Team-Project-미션-2)
+  * [SSD](#SSD-미션2)
+  * [Test Shell](#Test-Shell-미션2)
+  * [Test Script](#Test-Script-미션2)
 ---
 
 ## 팀 소개
@@ -53,7 +56,7 @@ ___
       - `value`: 16진수 (`0x`로 시작, 10자리) : `unsigned int`로 4바이트 데이터 처리
  ### 유의사항
    - 모든 상황에서 런타임 에러 발생 ❌
- ### SSD
+ ### SSD 미션1
    - [ ] `read` 기능 구현
       - 인덱스 0~99 벗어나면 `"ERROR"` 출력
       - LBS에 해당하는 값이 없으면 `0x00000000` 반환
@@ -61,7 +64,7 @@ ___
    - [ ] `write` 기능 구현
       - 인덱스 0~99 벗어나면 `"ERROR"` 출력
       - 정상적으로 실행되면 `ssd_nand.txt`에 값 저장
- ### Test Shell
+ ### Test Shell 미션1
    - [ ] `write`: SSD 호출 후 저장
    - [ ] `read`: SSD 호출 후 `ssd_output.txt`에서 읽어 출력  
      - 예: `LBA 3 0x00000000`
@@ -75,14 +78,15 @@ ___
    - [ ] `fullread`: 0~99까지 100회 read
    - [ ] 없는 명령어 입력 시 `"INVALID COMMAND"` 출력
    
- ### Test Script
+ ### Test Script 미션1
   - [ ] Test Script 1
   - [ ] Test Script 2
   - [ ] Test Script 3
 
 [🔝 목차로 돌아가기](#toc)
 
-### SSD
+## Team Project 미션 2
+### SSD 미션2
    - [ ] `erase` 기능 구현
        * E [LBA] [SIZE]  : size 0 보다 커야 함.
        * SSD 데이터 지우면 값은 0x00000000 으로 기록해야 한다.
@@ -106,7 +110,7 @@ ___
   - [ ] Flush
        * command buffer 에 있는 항목들을 한번에 실행하고 buffer 폴더에 있는 텍스트 파일명들을 empty 로 변경해 준다.
   - [ ] Comnnand Buffer : 명령어 모아 두는 곳
-### Test Shell
+### Test Shell 미션2
    - [ ] `erase` 기능 구현
          E [LBA] [SIZE]  : size 0 보다 커야 할지는 여기서 판단해도 되고 안해도 된다. .
                            max 는 체크하지 않음.
@@ -119,7 +123,7 @@ ___
          파일명 : latest.log => (10KB 넘어가는 경우 ) until_250403_09h_30m_11s.log 로 변경해서 저장해 준다.
          파일 압축하기 : until_*.log 파일이 2개이상 되는 경우 오래된 파일의 확장자를 until_*.zip 으로 변경해 준다.
    - [ ] Flush
- ### Test Script
+ ### Test Script 미션2
   - [ ] Runner : 여러개의 테스트 스크립트를 모아서 한번에 수행 시킬 수 있는 기능.
        * 실행 방식은 아래와 같이 두가지.. 
          - 첫번째 : shell shell_scripts.txt : shell_scripts.txt 파일에 아래 항목들어 적어주면 순차적으로 실행 시켜주는 기능.
