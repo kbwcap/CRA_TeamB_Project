@@ -11,3 +11,11 @@ bool WriteCommand::execute() {
 
   return ssd.saveStorageToFile();
 }
+
+int WriteCommand::getLBA() const {
+  return lba;
+}
+
+uint32_t WriteCommand::getData() const {
+  return data;
+}

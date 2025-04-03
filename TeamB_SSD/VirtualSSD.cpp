@@ -4,7 +4,7 @@
 #include "VirtualSSD.h"
 
 VirtualSSD::VirtualSSD(const std::string& nand, const std::string& out)
-  : nand_file(nand), out_file(out) {
+  : nand_file(nand), out_file(out), commandBuffer(*this) {
   for (int i = 0; i < MAX_RANGE_NUM; ++i) {
     storage[i] = 0;
   }

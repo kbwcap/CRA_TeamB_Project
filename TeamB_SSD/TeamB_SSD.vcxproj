@@ -138,6 +138,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CommandBuffer.cpp" />
     <ClCompile Include="EraseCommand.cpp" />
     <ClCompile Include="FlushCommand.cpp" />
     <ClCompile Include="main.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="WriteCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommandBuffer.h" />
     <ClInclude Include="define.h" />
     <ClInclude Include="EraseCommand.h" />
     <ClInclude Include="FlushCommand.h" />

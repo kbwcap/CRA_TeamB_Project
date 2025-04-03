@@ -33,3 +33,11 @@ bool EraseCommand::execute() {
   ssd.saveStorageToFile();
   return true;
 }
+
+int EraseCommand::getLBA() const {
+  return lba;
+}
+
+uint32_t EraseCommand::getSize() const {
+  return size;
+}
