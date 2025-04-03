@@ -141,6 +141,7 @@
     <ClInclude Include="MockShell.h" />
     <ClInclude Include="ShellTest.h" />
     <ClInclude Include="TestManager.h" />
+    <ClInclude Include="UserCommandQueue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

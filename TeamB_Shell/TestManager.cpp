@@ -1,11 +1,14 @@
 #pragma once
+
 #include "TestManager.h"
 
 #include <ctime>
 #include <iostream>
 
 #include "MockShell.h"
+#include "UserCommandQueue.h"
 #include "gmock/gmock.h"
+using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::Sequence;
 using ::testing::Test;
@@ -68,195 +71,80 @@ bool readCompare(int LBA, unsigned int expectedData, MockShell& mockShell) {
 }
 
 bool TestMock_FullWriteAndReadCompare_1() {
-  MockShell mockShell;
+  NiceMock<MockShell> mockShell;
+  UserCommandQueueMock queue(mockShell);
+
   const int minLba = 0;
   const int maxLba = 99;
-  const unsigned int step = 5;
-
-  unsigned int pat;
-  vector<unsigned int> patList;
-  vector<string> writeInput;
-  vector<string> readInput;
-  vector<string> expectedOutputs;
-  Sequence s;
+  const unsigned int groupSize = 5;
 
   uint32_t seed = static_cast<uint32_t>(time(0));
-  // generate input for writedata, readdata, and expected result
-  for (int lba = minLba; lba <= maxLba; lba++) {
-    if (lba % step == 0) {
-      pat = patternGenerator(seed);
-      patList.push_back(pat);
+  for (int base = minLba; base <= maxLba; base += groupSize + 1) {
+    unsigned int pattern = patternGenerator(seed);
+
+    for (unsigned int offset = 0; offset < groupSize && base + offset <= maxLba;
+         ++offset) {
+      if (!queue.enqueueWrite(base + offset, pattern)) return false;
     }
-
-    string wInput = "w " + std::to_string(lba) + " " + toHexString(pat);
-    string rInput = "r " + std::to_string(lba);
-    writeInput.push_back(wInput);
-    readInput.push_back(rInput);
-    expectedOutputs.push_back(getExpectedReadValue(lba, pat));
-  }
-
-  // Expect Call
-  for (const auto& wInput : writeInput) {
-    EXPECT_CALL(mockShell, executeCommand(wInput)).Times(1);
-  }
-
-  for (const auto& rInput : readInput) {
-    EXPECT_CALL(mockShell, executeCommand(rInput)).Times(1);
-  }
-
-  for (const auto& expected : expectedOutputs) {
-    EXPECT_CALL(mockShell, getOutput())
-        .InSequence(s)
-        .WillOnce(Return(expected));
-  }
-
-  // Verify
-  int patCount = 0;
-  int writeCount = 0;
-  int readCount = 0;
-  for (int lba = minLba; lba <= maxLba;) {
-    if (lba % step == 0) {
-      pat = patList[patCount++];
-    }
-    for (unsigned int index = 0; index < step; index++) {
-      mockShell.executeCommand(writeInput[writeCount++]);
-    }
-    // readCompare
-    for (unsigned int index = 0; index < step; index++, lba++) {
-      if (readCompare(lba, pat, mockShell) == false) return false;
+    for (unsigned int offset = 0; offset < groupSize && base + offset <= maxLba;
+         ++offset) {
+      if (!queue.enqueueRead(base + offset, pattern)) return false;
     }
   }
-  return true;
+
+  queue.expectAll(mockShell);
+  return queue.flush();
 }
 
 bool TestMock_PartialLBAWrite_2() {
-  MockShell mockShell;
-  vector<string> writeInput;
-  vector<string> readInput;
-  vector<string> expectedOutputs;
-  unsigned int pat;
-  vector<unsigned int> patList;
-  vector<int> lbaList = {4, 0, 3, 1, 2};
-  Sequence expectedOutputSeq;
-  Sequence readInputSeq;
-  const int maxLoopCount = 30;
+  NiceMock<MockShell> mockShell;
+  UserCommandQueueMock queue(mockShell);
+
+  const std::vector<int> lbaOrder = {4, 0, 3, 1, 2};
+
   uint32_t seed = static_cast<uint32_t>(time(0));
-  for (int loopCount = 0; loopCount < maxLoopCount; loopCount++) {
-    pat = patternGenerator(seed);
-    patList.push_back(pat);
-    for (int count = 0; count < 5; count++) {
-      string wInput =
-          "w " + std::to_string(lbaList[count]) + " " + toHexString(pat);
-      string rInput = "r " + std::to_string(lbaList[count]);
-      writeInput.push_back(wInput);
-      readInput.push_back(rInput);
-      expectedOutputs.push_back(getExpectedReadValue(lbaList[count], pat));
+  for (int loop = 0; loop < 30; ++loop) {
+    unsigned int pattern = patternGenerator(seed);
+
+    // Write sequence
+    for (int lba : lbaOrder) {
+      if (!queue.enqueueWrite(lba, pattern)) return false;
+    }
+
+    // ReadCompare sequence
+    for (int lba : lbaOrder) {
+      if (!queue.enqueueRead(lba, pattern)) return false;
     }
   }
 
-  // Expect Call
-  for (const auto& wInput : writeInput) {
-    EXPECT_CALL(mockShell, executeCommand(wInput)).Times(1);
-  }
-
-  for (const auto& rInput : readInput) {
-    EXPECT_CALL(mockShell, executeCommand(rInput)).InSequence(readInputSeq);
-  }
-
-  for (const auto& expected : expectedOutputs) {
-    EXPECT_CALL(mockShell, getOutput())
-        .InSequence(expectedOutputSeq)
-        .WillOnce(Return(expected));
-  }
-
-  // Test
-  int writeCount = 0;
-  int readCount = 0;
-  for (int loopCount = 0; loopCount < maxLoopCount; loopCount++) {
-    pat = patList[loopCount];
-    for (int count = 0; count < 5; count++) {
-      mockShell.executeCommand(writeInput[writeCount++]);
-    }
-
-    // readCompare
-    for (int count = 0; count < 5; count++) {
-      if (readCompare(lbaList[count], pat, mockShell) == false) return false;
-    }
-  }
-
-  return true;
+  queue.expectAll(mockShell);
+  return queue.flush();
 }
 
 bool TestMock_WriteReadAging_3() {
-  MockShell mockShell;
+  NiceMock<MockShell> mockShell;
+  UserCommandQueueMock queue(mockShell);
 
   const int maxLoopCount = 200;
-  const int maxInterval = 50;
-  vector<string> writeInput;
-  vector<string> readInput;
-  vector<string> expectedOutputs;
-  vector<unsigned int> patList;
-  unsigned int patFristWrite;
-  unsigned int patSecondWrite;
+  unsigned int pat1, pat2;
+
   uint32_t seed = static_cast<uint32_t>(time(0));
-  string wInput, rInput;
-  for (int loopCount = 0; loopCount < maxLoopCount; loopCount += maxInterval) {
-    patList.clear();
-    writeInput.clear();
-    readInput.clear();
-    expectedOutputs.clear();
-    Sequence expectedOutputSeq;
-    Sequence writeInputSeq;
-    Sequence readInputSeq;
-    for (int interval = 0; interval < maxInterval; interval++) {
-      // prepare input / output / expected result
-      patFristWrite = patternGenerator(seed);
-      patList.push_back(patFristWrite);
-      wInput = "w " + std::to_string(0) + " " + toHexString(patFristWrite);
-      rInput = "r " + std::to_string(0);
-      writeInput.push_back(wInput);
-      readInput.push_back(rInput);
-      expectedOutputs.push_back(getExpectedReadValue(0, patFristWrite));
+  for (int loop = 0; loop < maxLoopCount; loop++) {
+    pat1 = patternGenerator(seed);
+    pat2 = patternGenerator(seed);
 
-      patSecondWrite = patternGenerator(seed);
-      patList.push_back(patSecondWrite);
-      wInput = "w " + std::to_string(99) + " " + toHexString(patSecondWrite);
-      rInput = "r " + std::to_string(99);
-      writeInput.push_back(wInput);
-      readInput.push_back(rInput);
-      expectedOutputs.push_back(getExpectedReadValue(99, patSecondWrite));
-    }
+    if (!queue.enqueueWrite(0, pat1)) return false;
+    if (!queue.enqueueWrite(99, pat2)) return false;
 
-    // expect call
-    for (const auto& wInput : writeInput) {
-      EXPECT_CALL(mockShell, executeCommand(wInput)).InSequence(writeInputSeq);
-    }
+    if (!queue.enqueueRead(0, pat1)) return false;
+    if (!queue.enqueueRead(99, pat2)) return false;
 
-    for (const auto& rInput : readInput) {
-      EXPECT_CALL(mockShell, executeCommand(rInput)).InSequence(readInputSeq);
-    }
-
-    for (const auto& expected : expectedOutputs) {
-      EXPECT_CALL(mockShell, getOutput())
-          .InSequence(expectedOutputSeq)
-          .WillOnce(Return(expected));
-    }
-
-    // test
-    int writeCount = 0;
-    int readCount = 0;
-    int patCount = 0;
-    for (int interval = 0; interval < maxInterval; interval++) {
-      mockShell.executeCommand(writeInput[writeCount++]);
-      mockShell.executeCommand(writeInput[writeCount++]);
-      // readCompare
-      if (readCompare(0, patList[patCount++], mockShell) == false) return false;
-      if (readCompare(99, patList[patCount++], mockShell) == false)
-        return false;
-    }
+    queue.expectAll(mockShell);
+    if (!queue.flush()) return false;
   }
 
-  return true;
+  queue.expectAll(mockShell);
+  return queue.flush();
 }
 
 class TestScriptFixture : public Test {
