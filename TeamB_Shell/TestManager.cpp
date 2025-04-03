@@ -290,15 +290,18 @@ class TestScriptFixture : public Test {
       return;
     }
 
+    int number;
+    std::string strNum = testName.substr(0, pos);
     try {
-      std::string strNum = testName.substr(0, pos);
-      int number = std::stoi(strNum);
-      bool result = testManager.runTest(strNum + "_");
-      std::cout << "[Test: " << testName << "] " << result << std::endl;
-      EXPECT_TRUE(result);
-    } catch (const std::invalid_argument& e) {
-      std::cout << "there is not Number\n";
+      number = std::stoi(strNum);
+    } catch (const std::exception& e) {
+      std::cerr << "[Test: " << testName
+                << "] Invalid number format: " << e.what() << std::endl;
+      return;
     }
+    bool result = testManager.runTest(strNum + "_");
+    std::cout << "[Test: " << testName << "] " << result << std::endl;
+    EXPECT_TRUE(result);
   }
 
   void runAllTestcases() {
