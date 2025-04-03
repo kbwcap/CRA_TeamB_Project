@@ -1,17 +1,14 @@
 #include "gmock/gmock.h"
-
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <vector>
-#include <sstream>  // for stringstream
-#include <iomanip>  // for hex formatting
-#include <cctype> 
-#include <algorithm>
+#include <cstdlib>
+#include <cctype>
+#include <memory>
 #include "VirtualSSD.cpp"
 #include <cstdint>
 
 bool isValidHex(const char* str) {
+
   if (!strncmp(str, "0X", 2)) {
     return false;
   }
@@ -34,48 +31,79 @@ bool isValidHex(const char* str) {
   return true;
 }
 
+void showUsage() {
+  std::cerr << "Usage: ssd.exe W <int> <hexadecimal>  or  ssd.exe R <int>" << std::endl;
+}
+
+
+
+bool processWrite(int num, const std::string& hexStr, VirtualSSD& ssd) {
+  if (!isValidHex(hexStr.c_str())) {
+    std::cerr << "Invalid hexadecimal input. Please enter a valid 8-digit value in the form 0xXXXXXXXX." << std::endl;
+    return false;
+  }
+
+  uint32_t hexValue = std::strtoul(hexStr.c_str(), nullptr, 16);
+  return ssd.executeCommand(std::make_shared<WriteCommand>(ssd, num, hexValue));
+}
+
+bool processRead(int num, VirtualSSD& ssd) {
+  return ssd.executeCommand(std::make_shared<ReadCommand>(ssd, num));
+}
+
+bool parseArguments(int argc, char* argv[], char& mode, int& num, std::string& hexStr) {
+  if (argc < 2 || argc > 4) {
+    showUsage();
+    return false;
+  }
+
+  mode = argv[1][0];
+  num = std::atoi(argv[2]);
+
+  if (mode == 'W') {
+    if (argc != 4) {
+      std::cerr << "For 'W' mode, provide 2 arguments: <int> <hexadecimal>" << std::endl;
+      return false;
+    }
+    hexStr = argv[3];
+  }
+  else if (mode == 'R') {
+    if (argc != 3) {
+      std::cerr << "For 'R' mode, provide 1 argument: <int>" << std::endl;
+      return false;
+    }
+  }
+  else {
+    std::cerr << "Invalid mode. Use 'W' for write or 'R' for read." << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+// Main function to handle the arguments and execute commands
 int main(int argc, char* argv[]) {
 #ifdef _DEBUG
   testing::InitGoogleTest();
   return RUN_ALL_TESTS();
-
 #else
-   VirtualSSD ssd;
+  VirtualSSD ssd;
+  char mode;
+  int num;
+  std::string hexStr;
 
-  if (argc < 2 || argc > 4) {
-    std::cerr << "Usage: ssd.exe W <int> <hexadecimal>  or  ssd.exe R <int>" << std::endl;
+
+  if (!parseArguments(argc, argv, mode, num, hexStr)) {
     return 1;
   }
 
-  char c = argv[1][0];
-  int num = std::atoi(argv[2]);
-
-  if (c == 'W') {
-    if (argc != 4) {
-      std::cerr << "For 'W' mode, provide 2 arguments: <int> <hexadecimal>" << std::endl;
-      return 1;
-    }
-
-    if (!isValidHex(argv[3])) {
-      std::cerr << "Invalid input. Please enter a valid 8-digit hexadecimal value in the form 0xXXXXXXXX.\n";
-      return 1;
-    }
-
-    uint32_t hexValue = std::strtoul(argv[3], nullptr, 16);
-
-    ssd.executeCommand(std::make_shared<WriteCommand>(ssd, num, hexValue));
-
-  } else if (c == 'R') {
-    if (argc != 3) {
-      std::cerr << "For 'R' mode, provide 1 argument: <int>" << std::endl;
-      return 1;
-    }
-    ssd.executeCommand(std::make_shared<ReadCommand>(ssd, num));
+  if (mode == 'W') {
+    return processWrite(num, hexStr, ssd) ? 0 : 1;
   }
-  else {
-    std::cerr << "Invalid mode. Use 'W' for write or 'R' for read." << std::endl;
-    return 1;
+  else if (mode == 'R') {
+    processRead(num, ssd);
+    return 0;
   }
+
 #endif
-  return 0;
 }
