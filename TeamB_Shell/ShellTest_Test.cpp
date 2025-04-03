@@ -1,4 +1,4 @@
-﻿#include "ShellTest.h"
+#include "ShellTest.h"
 
 #include "gmock/gmock.h"
 
@@ -105,5 +105,15 @@ TEST_F(CommandFixture, FullReadValid) {
 
 TEST_F(CommandFixture, FullReadCmdInvalid) {
   shellTest.executeCommand("fullread gogo\n");
+  EXPECT_EQ(buffer.str(), shellTest.invalid_command);
+}
+
+TEST_F(CommandFixture, FlushVaild) {
+  shellTest.executeCommand("flush\n");
+  EXPECT_EQ(buffer.str(), shellTest.flush_done);
+}
+
+TEST_F(CommandFixture, FlushCmdInvaild) {
+  shellTest.executeCommand("flush gogo\n");
   EXPECT_EQ(buffer.str(), shellTest.invalid_command);
 }
