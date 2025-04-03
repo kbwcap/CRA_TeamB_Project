@@ -27,6 +27,7 @@ class ShellTest : public IShell {
   bool excuteFullWrite(std::istringstream &iss);
   bool excuteFullRead(std::istringstream &iss);
   bool excuteErase(std::istringstream &iss);
+  bool excuteEraseRange(std::istringstream &iss);
   bool excuteFlush(std::istringstream &iss);
   bool checkValidArgument(std::string &trashStr);
   bool checkValidLba(std::string &lbaStr);
