@@ -22,6 +22,9 @@ void ShellTest::executeCommand(const std::string &input) {
   } else if (command == "fullread") {
     if (!excuteFullRead(iss)) std::cout << invalid_command;
     return;
+  } else if (command == "flush") {
+    if (!excuteFlush(iss)) std::cout << invalid_command;
+    return;
   } else {
     // Test Script 수행
     // if(!TestManager::runTest)
@@ -103,6 +106,19 @@ bool ShellTest::excuteFullRead(std::istringstream &iss) {
     system(newCommand.c_str());
     std::cout << read_done + getOutput() + "\n";
   }
+
+  return true;
+}
+
+bool ShellTest::excuteFlush(std::istringstream &iss) {
+  std::string trashStr;
+  iss >> trashStr;
+
+  if (!checkValidArgument(trashStr)) return false;
+
+  std::string newCommand = "ssd.exe F";
+  system(newCommand.c_str());
+  std::cout << flush_done;
 
   return true;
 }

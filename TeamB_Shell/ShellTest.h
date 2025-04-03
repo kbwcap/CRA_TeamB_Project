@@ -21,6 +21,7 @@ class ShellTest : public IShell {
   const std::string read_done = "[Read] ";
   const std::string fullwrite_done = "[FullWrite] Done\n";
   const std::string invalid_command = "INVALID COMMAND\n";
+  const std::string flush_done = "[Flush] Done\n";
   const int MAX_LBA = 100;
 
  private:
@@ -29,6 +30,7 @@ class ShellTest : public IShell {
   bool excuteRead(std::istringstream &iss);
   bool excuteFullWrite(std::istringstream &iss);
   bool excuteFullRead(std::istringstream &iss);
+  bool excuteFlush(std::istringstream &iss);
   bool checkValidArgument(std::string &trashStr);
   bool checkValidLba(std::string &lbaStr);
   bool checkValidValue(std::string &valueStr);
