@@ -1,14 +1,14 @@
-#include "gmock/gmock.h"
-#include <iostream>
-#include <string>
-#include <cstdlib>
 #include <cctype>
-#include <memory>
-#include "VirtualSSD.cpp"
 #include <cstdint>
+#include <cstdlib>
+#include <iostream>
+#include <memory>
+#include <string>
+
+#include "VirtualSSD.cpp"
+#include "gmock/gmock.h"
 
 bool isValidHex(const char* str) {
-
   if (!strncmp(str, "0X", 2)) {
     return false;
   }
@@ -32,14 +32,15 @@ bool isValidHex(const char* str) {
 }
 
 void showUsage() {
-  std::cerr << "Usage: ssd.exe W <int> <hexadecimal>  or  ssd.exe R <int>" << std::endl;
+  std::cerr << "Usage: ssd.exe W <int> <hexadecimal>  or  ssd.exe R <int>"
+            << std::endl;
 }
-
-
 
 bool processWrite(int num, const std::string& hexStr, VirtualSSD& ssd) {
   if (!isValidHex(hexStr.c_str())) {
-    std::cerr << "Invalid hexadecimal input. Please enter a valid 8-digit value in the form 0xXXXXXXXX." << std::endl;
+    std::cerr << "Invalid hexadecimal input. Please enter a valid 8-digit "
+                 "value in the form 0xXXXXXXXX."
+              << std::endl;
     return false;
   }
 
@@ -55,7 +56,12 @@ bool flushRead(VirtualSSD& ssd) {
   return ssd.executeCommand(std::make_shared<FlushCommand>(ssd));
 }
 
-bool parseArguments(int argc, char* argv[], char& mode, int& num, std::string& hexStr) {
+bool processErase(int num, int size, VirtualSSD& ssd) {
+  return ssd.executeCommand(std::make_shared<EraseCommand>(ssd, num, size));
+}
+
+bool parseArguments(int argc, char* argv[], char& mode, int& num,
+                    std::string& hexStr, int& size) {
   if (argc < 2 || argc > 4) {
     showUsage();
     return false;
@@ -66,25 +72,30 @@ bool parseArguments(int argc, char* argv[], char& mode, int& num, std::string& h
 
   if (mode == 'W') {
     if (argc != 4) {
-      std::cerr << "For 'W' mode, provide 2 arguments: <int> <hexadecimal>" << std::endl;
+      std::cerr << "For 'W' mode, provide 2 arguments: <int> <hexadecimal>"
+                << std::endl;
       return false;
     }
     hexStr = argv[3];
-  }
-  else if (mode == 'R') {
+  } else if (mode == 'R') {
     if (argc != 3) {
       std::cerr << "For 'R' mode, provide 1 argument: <int>" << std::endl;
       return false;
     }
-  }
-  else if (mode == 'F') {
+  } else if (mode == 'F') {
     if (argc != 1) {
       std::cerr << "For 'F' mode, require no argument" << std::endl;
       return false;
     }
-  }
-  else {
-    std::cerr << "Invalid mode. Use 'W' for write or 'R' for read." << std::endl;
+  } else if (mode == 'E') {
+    if (argc != 4) {
+      std::cerr << "For 'E' mode, provide 1 argument: <int>" << std::endl;
+      return false;
+    }
+    size = std::atoi(argv[3]);
+  } else {
+    std::cerr << "Invalid mode. Use 'W' for write or 'R' for read."
+              << std::endl;
     return false;
   }
 
@@ -100,20 +111,21 @@ int main(int argc, char* argv[]) {
   char mode;
   int num;
   std::string hexStr;
+  int size;
 
-
-  if (!parseArguments(argc, argv, mode, num, hexStr)) {
+  if (!parseArguments(argc, argv, mode, num, hexStr, size)) {
     return 1;
   }
 
   if (mode == 'W' || mode == 'w') {
     return processWrite(num, hexStr, ssd) ? 0 : 1;
-  }
-  else if (mode == 'R' || mode == 'r') {
+  } else if (mode == 'R' || mode == 'r') {
     return processRead(num, ssd);
-  }
-  else if (mode == 'F' || mode == 'f') {
+  } else if (mode == 'F' || mode == 'f') {
     return flushRead(ssd);
+  } else if (mode == 'E' || mode == 'e') {
+    processErase(num, size, ssd);
+    return 0;
   }
 
 #endif
