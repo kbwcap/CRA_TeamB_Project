@@ -92,7 +92,8 @@ ___
        * SSD 데이터 지우면 값은 0x00000000 으로 기록해야 한다.
        * LBA 가 범위 벗어나는 경우 ERROR 에러 ssd_output.txt 파일 저장.
          - 범위 벗어나는 경우 있는 경우까지 돌릴지 전체 ERROR 처리 할 것인지 알아서.
-       * size 가 1보다 작은 경우 ERROR_SIZE 에러 ssd_output.txt 파일 저장.
+       * size 가 1보다 작거나 10보다 큰 경우 ERROR_SIZE 에러 ssd_output.txt 파일 저장.
+       * size 가 10보다 큰 경우 ERROR_SIZE 에러 ssd_output.txt 파일 저장하고 size 10 만큼은 erase 진행.
        * 값을 지우는 동안 범위가 벗어나는 경우 ERROR_OUT_OF_RANGE 에러 ssd_output.txt 파일에 저장.
          ( 95 부터 10개일때 99까지 진행하고 ERROR_OUT_OF_RANGE 남기고 종료 )
   - [ ] Command Buffer : 명령어 모아 두는 곳
