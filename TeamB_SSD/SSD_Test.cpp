@@ -67,9 +67,13 @@ TEST_F(CommandFixture, basic_SSD_test_Erase_0_10) {
 }
 
 TEST_F(CommandFixture, basic_SSD_test_Erase_95_10) {
-  executeAndExpectTRUE('E', 95, 10);
+  expectCommandFALSE('E', 95, 10);
 }
 
 TEST_F(CommandFixture, basic_SSD_test_Erase_100_10) {
   expectCommandFALSE('E', 100, 10);
+}
+
+TEST_F(CommandFixture, basic_SSD_test_Erase_0_20) {
+  executeAndExpectTRUE('E', 0, 20);
 }

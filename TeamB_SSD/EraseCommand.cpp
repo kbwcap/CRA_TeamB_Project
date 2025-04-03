@@ -16,6 +16,11 @@ bool EraseCommand::execute() {
     return false;
   }
 
+  if (size > 10) {
+    ssd.saveOutputToFile(ERROR_SIZE);
+    size = 10;
+  }
+
   for (int startLBA = lba; startLBA < lba + size; ++startLBA) {
     if (ssd.isOutOfRange(startLBA)) {
       ssd.saveStorageToFile();
