@@ -138,13 +138,46 @@ bool TestMock_WriteReadAging_3() {
   return queue.flush();
 }
 
+bool TestMock_EraseAndWriteAging_4() {
+  NiceMock<MockShell> mockShell;
+  UserCommandQueueMock queue(mockShell);
+
+  const int maxLoopCount = 30;
+  const int len = 2;
+  const int maxLba = 99;
+  unsigned int pat;
+
+  uint32_t seed = static_cast<uint32_t>(time(0));
+  for (int loop = 0; loop < maxLoopCount; loop++) {
+    if (!queue.enqueueEraseRange(0, len)) return false;
+    for (int startLba = len; startLba + len <= maxLba; startLba += len) {
+      pat = patternGenerator(seed);
+      if (!queue.enqueueWrite(startLba, pat)) return false;
+
+      queue.expectAll(mockShell);
+      if (!queue.flush()) return false;
+
+      pat = patternGenerator(seed);
+      if (!queue.enqueueWrite(startLba, pat)) return false;
+      if (!queue.enqueueEraseRange(startLba, startLba + len)) return false;
+    }
+  }
+
+  queue.expectAll(mockShell);
+  return queue.flush();
+}
+
 class TestScriptFixture : public Test {
  public:
   void registerAllTestcases() {
     testManager.registerTest("1_FullWriteAndReadCompare_Mock",
                              TestMock_FullWriteAndReadCompare_1);
-    testManager.registerTest("2_PartialLBAWrite_Mock", TestMock_PartialLBAWrite_2);
-    testManager.registerTest("3_WriteReadAging_Mock", TestMock_WriteReadAging_3);
+    testManager.registerTest("2_PartialLBAWrite_Mock",
+                             TestMock_PartialLBAWrite_2);
+    testManager.registerTest("3_WriteReadAging_Mock",
+                             TestMock_WriteReadAging_3);
+    testManager.registerTest("4_EraseAndWriteAging_Mock",
+                             TestMock_EraseAndWriteAging_4);
   }
 
   void runTestcase(const std::string& testName) {
@@ -270,6 +303,31 @@ bool Test_WriteReadAging_3() {
 
     if (!queue.enqueueRead(0, pat1)) return false;
     if (!queue.enqueueRead(99, pat2)) return false;
+  }
+
+  return queue.flush();
+}
+
+bool Test_EraseAndWriteAging_4() {
+  ShellTest realShell;
+  UserCommandQueueMock queue(realShell);
+
+  const int maxLoopCount = 30;
+  const int len = 2;
+  const int maxLba = 99;
+  unsigned int pat;
+
+  uint32_t seed = static_cast<uint32_t>(time(0));
+  for (int loop = 0; loop < maxLoopCount; loop++) {
+    if (!queue.enqueueEraseRange(0, len)) return false;
+    for (int startLba = len; startLba + len <= maxLba; startLba += len) {
+      pat = patternGenerator(seed);
+      if (!queue.enqueueWrite(startLba, pat)) return false;
+
+      pat = patternGenerator(seed);
+      if (!queue.enqueueWrite(startLba, pat)) return false;
+      if (!queue.enqueueEraseRange(startLba, startLba + len)) return false;
+    }
   }
 
   return queue.flush();
