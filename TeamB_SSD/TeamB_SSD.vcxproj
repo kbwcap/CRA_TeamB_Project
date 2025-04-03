@@ -142,6 +142,9 @@
     <ClCompile Include="SSD_Test.cpp" />
     <ClCompile Include="VirtualSSD.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="define.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\gmock.1.11.0\build\native\gmock.targets" Condition="Exists('..\packages\gmock.1.11.0\build\native\gmock.targets')" />
