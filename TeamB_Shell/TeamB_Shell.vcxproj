@@ -138,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="define.h" />
+    <ClInclude Include="MockShell.h" />
     <ClInclude Include="ShellTest.h" />
     <ClInclude Include="TestManager.h" />
   </ItemGroup>

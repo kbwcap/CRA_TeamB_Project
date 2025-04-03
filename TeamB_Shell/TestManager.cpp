@@ -1,18 +1,14 @@
 #pragma once
 #include "TestManager.h"
+
 #include <ctime>
 #include <iostream>
-#include "ShellTest.h"
+
+#include "MockShell.h"
 #include "gmock/gmock.h"
 using ::testing::Return;
 using ::testing::Sequence;
 using ::testing::Test;
-
-class MockShell : public IShell {
- public:
-  MOCK_METHOD(void, executeCommand, (const std::string& cmdLine), (override));
-  MOCK_METHOD(std::string, getOutput, (), (override));
-};
 
 void TestManager::registerTest(const string& name, TestFn func) {
   testCases[name] = func;
