@@ -15,18 +15,15 @@ void TestManager::registerTest(const string& name, TestFn func) {
 }
 
 bool TestManager::runTest(const string& name) {
-  // 정확히 일치하는 테스트가 있다면 먼저 실행
   if (testCases.count(name)) return testCases[name]();
 
   // 없으면 prefix 매칭 탐색
   for (const auto& pair : testCases) {
-    if (pair.first.rfind(name, 0) == 0) {  // key가 name으로 시작하는지 체크
+    if (pair.first.rfind(name, 0) == 0) {
       return pair.second();
     }
   }
 
-  // Test Shell에서 write, read, exit, help, fullwrite, fullread 이외에 다른
-  // 문자가 들어올 경우
   return false;
 }
 
