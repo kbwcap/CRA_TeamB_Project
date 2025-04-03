@@ -117,13 +117,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  if (mode == 'W' || mode == 'w') {
+  if (mode == 'W') {
     return processWrite(num, hexStr, ssd) ? 0 : 1;
-  } else if (mode == 'R' || mode == 'r') {
+  } else if (mode == 'R') {
     return processRead(num, ssd);
-  } else if (mode == 'F' || mode == 'f') {
+  } else if (mode == 'F') {
     return flushRead(ssd);
-  } else if (mode == 'E' || mode == 'e') {
+  } else if (mode == 'E') {
     processErase(num, size, ssd);
     return 0;
   }
