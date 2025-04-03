@@ -121,8 +121,7 @@ TEST_F(CommandFixture, FlushCmdInvaild) {
 TEST_F(CommandFixture, EraseValid) {
   shellTest.executeCommand("erase 30 15\n");
   std::string expected =
-      "ssd.exe E 30 10\n"
-      "ssd.exe E 40 5\n";
+      erase_done + "ssd.exe E 30 10\n" + erase_done + "ssd.exe E 40 5\n";
   EXPECT_EQ(buffer.str(), expected);
 }
 
@@ -144,4 +143,33 @@ TEST_F(CommandFixture, EraseValueInvalid) {
 TEST_F(CommandFixture, EraseTooBigValueInvalid) {
   shellTest.executeCommand("erase 30 10000000000000000000\n");
   EXPECT_EQ(buffer.str(), err_too_big_size + invalid_command);
+}
+
+TEST_F(CommandFixture, EraseRange_Valid) {
+  shellTest.executeCommand("erase_range 21 42\n");
+  std::string expected = erase_done + "ssd.exe E 21 10\n" + erase_done +
+                         "ssd.exe E 31 10\n" + erase_done + "ssd.exe E 41 2\n";
+  EXPECT_EQ(buffer.str(), expected);
+}
+
+TEST_F(CommandFixture, EraseRange_Valid2) {
+  shellTest.executeCommand("erase_range 57 83\n");
+  std::string expected = erase_done + "ssd.exe E 57 10\n" + erase_done +
+                         "ssd.exe E 67 10\n" + erase_done + "ssd.exe E 77 7\n";
+  EXPECT_EQ(buffer.str(), expected);
+}
+
+TEST_F(CommandFixture, EraseRange_Cmd_Invalid) {
+  shellTest.executeCommand("erase_range 10 20 gogo\n");
+  EXPECT_EQ(buffer.str(), invalid_command);
+}
+
+TEST_F(CommandFixture, EraseRange_LBA_Invalid) {
+  shellTest.executeCommand("erase_range 30 102\n");
+  EXPECT_EQ(buffer.str(), invalid_command);
+}
+
+TEST_F(CommandFixture, EraseRange_startLBA_bigger_than_endLBA_Invalid) {
+  shellTest.executeCommand("erase_range 30 10\n");
+  EXPECT_EQ(buffer.str(), err_start_bigger_than_end + invalid_command);
 }
