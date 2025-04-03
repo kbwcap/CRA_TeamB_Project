@@ -12,9 +12,9 @@ class CommandBuffer {
 public:
   static constexpr int MAX_COMMANDS = 5;
 
-  CommandBuffer(VirtualSSD& ssd, 
-	  const std::string& bufferFile = "command_buffer.txt",
-	  const std::string& bufferFolder = "buffer");
+  CommandBuffer(VirtualSSD& ssd,
+    const std::string& bufferFile = "command_buffer.txt",
+    const std::string& bufferFolder = "buffer");
 
   ~CommandBuffer();
 
@@ -22,10 +22,7 @@ public:
   void clear();
   void reloadFromCommandFile();
   void reloadFromCommandFile2();
-  void updateBufferFile(int index,
-	  const std::string& commandType,
-	  int lba, uint32_t dataOrSize);
-
+  void updateBufferFile(int index, const std::string& commandType, int lba, uint32_t dataOrSize);
 
 private:
   void renameOrCreateFile(const std::string& oldFileName, const std::string& newFileName);
@@ -33,11 +30,11 @@ private:
   void initializeBufferFolder();
   void saveCommandToFile();
   void clearCommandFile();
-  void excuteCommand();
+  void executeCommand();
 
   std::shared_ptr<ICommand> commandBuffer[MAX_COMMANDS] = {};
   int commandCount;
-    const std::string bufferFile;
-	const std::string bufferFolder;
+  const std::string bufferFile;
+  const std::string bufferFolder;
   VirtualSSD& ssd;
 };
