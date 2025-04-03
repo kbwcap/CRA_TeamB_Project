@@ -402,3 +402,4 @@ TeamB_SSD/command_buffer.txt
 TeamB_SSD/ssd_nand.txt
 TeamB_SSD/ssd_output.txt
 .vscode
+TeamB_SSD/buffer/*
