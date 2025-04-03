@@ -120,7 +120,9 @@ TEST_F(CommandFixture, FlushCmdInvaild) {
 
 TEST_F(CommandFixture, EraseValid) {
   shellTest.executeCommand("erase 30 15\n");
-  std::string expected = "ssd.exe E 30 10\nssd.exe E 40 5\n";
+  std::string expected =
+      "ssd.exe E 30 10\n"
+      "ssd.exe E 40 5\n";
   EXPECT_EQ(buffer.str(), expected);
 }
 
