@@ -51,6 +51,10 @@ bool processRead(int num, VirtualSSD& ssd) {
   return ssd.executeCommand(std::make_shared<ReadCommand>(ssd, num));
 }
 
+bool flushRead(VirtualSSD& ssd) {
+  return ssd.executeCommand(std::make_shared<FlushCommand>(ssd));
+}
+
 bool parseArguments(int argc, char* argv[], char& mode, int& num, std::string& hexStr) {
   if (argc < 2 || argc > 4) {
     showUsage();
@@ -102,12 +106,14 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  if (mode == 'W') {
+  if (mode == 'W' || mode == 'w') {
     return processWrite(num, hexStr, ssd) ? 0 : 1;
   }
-  else if (mode == 'R') {
-    processRead(num, ssd);
-    return 0;
+  else if (mode == 'R' || mode == 'r') {
+    return processRead(num, ssd);
+  }
+  else if (mode == 'F' || mode == 'f') {
+    return flushRead(ssd);
   }
 
 #endif

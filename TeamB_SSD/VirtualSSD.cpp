@@ -88,10 +88,11 @@ public:
     }
   }
 
-  void saveOutputToFile(std::string outData) {
+  bool saveOutputToFile(std::string outData) {
     std::ofstream outputFile(out_file, std::ios::out);
     outputFile << outData << '\n';
     outputFile.close();
+    return true;
   }
 
   bool isOutOfRange(int lba) {
@@ -138,9 +139,8 @@ public:
     std::stringstream ss;
     ss << "LBA " << lba << " 0x" << std::setfill('0') << std::setw(8)
       << std::hex << std::uppercase << ssd.getData(lba);
-    ssd.saveOutputToFile(ss.str());
 
-    return true;
+    return  ssd.saveOutputToFile(ss.str());
   }
 private:
   int lba;
@@ -153,8 +153,6 @@ public:
   }
 
   bool execute() override {
-    ssd.saveStorageToFile();
-
-    return true;
+    return ssd.saveStorageToFile();
   }
 };
