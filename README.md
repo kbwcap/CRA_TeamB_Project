@@ -1,3 +1,4 @@
+아래에서 ## Team Proejct 미션1, ## Team Project 미션2 아래 부분들을 Collapse 추가해줘
 # 🏆 B팀의 SSD 프로젝트 체크리스트 👍
 
 ## 📚 목차<a name="toc"></a> 
@@ -48,6 +49,9 @@ ___
 ---
 
 ## Team Project 미션 1
+<details>
+<summary>상세 내용</summary>
+ 
  ### 기본 조건
    - `ssd_nand.txt`: 저장 파일 (초기 자동 생성)
    - `ssd_out.txt`: read 명령 결과 저장
@@ -83,33 +87,44 @@ ___
   - [ ] Test Script 2
   - [ ] Test Script 3
 
+</details>
+
 [🔝 목차로 돌아가기](#toc)
 
 ## Team Project 미션 2
+<details>
+<summary>상세 내용</summary>
+ 
 ### SSD 미션2
    - [ ] `erase` 기능 구현
        * E [LBA] [SIZE]  : size 0 보다 커야 함.
        * SSD 데이터 지우면 값은 0x00000000 으로 기록해야 한다.
-       * 범위 벗어나는 경우 ERROR 표시
-         - 범위 벗어나는 경우 있는 경우까지 돌릴지 전체 ERROR 처리 할 것인지 알아서. 
-  - [ ] Command Buffer : 불필요한 command 줄이기.
+       * LBA 가 범위 벗어나는 경우 ERROR 에러 ssd_output.txt 파일 저장.
+         - 범위 벗어나는 경우 있는 경우까지 돌릴지 전체 ERROR 처리 할 것인지 알아서.
+       * size 가 1보다 작거나 10보다 큰 경우 ERROR_SIZE 에러 ssd_output.txt 파일 저장.
+       * size 가 10보다 큰 경우 ERROR_SIZE 에러 ssd_output.txt 파일 저장하고 size 10 만큼은 erase 진행.
+       * 값을 지우는 동안 범위가 벗어나는 경우 ERROR_OUT_OF_RANGE 에러 ssd_output.txt 파일에 저장.
+         ( 95 부터 10개일때 99까지 진행하고 ERROR_OUT_OF_RANGE 남기고 종료 )
+  - [ ] Command Buffer : 명령어 모아 두는 곳
        * SSD에서 받은 command 들을 SSD의 내부 저장소에 저장 후 한번에 처리..
-       * max : 5
-       * write, erase 명령어만 buffer 에 넣어준다.
-       * buffer 폴더 생성해서 1_empty.txt .. 5_empty.txt 형식의 파일로 저장.
+       * 최대로 Buffer에 저장 가능한 명령어는 5개, 즉 buffer 폴더에 생성되는 파일도 5개 ( max : 5 )
+       * write, erase 두개의 명령어만 buffer 에 넣어준다.
+       * 명령어 저장 방식 ( buffer 폴더에 파일로 저장 )
+          1) buffer 폴더 생성 
           -> buffer 폴더는 프로그램 실행할때 무조건 생성.
+          2) 명령어 들어오면 buffer 폴더에 아래와 같이 파일명에 명령어 적어서 생성해줌. ( 파일명은 알아서.. )
+          -> W_2_0x12345678.txt
           -> 파일 내부에는 기록되는 항목이 없음.
-          -> command 를 파일명에 기록해서 관리. 파일명은 알아서..
+          3) 파일이 5개가 넘어가면 오래된 순으로 삭제
        * Ignore Command
           -> erase 명령어 수행하기 이전에 같은 lba를 write 하거나 erase 하는 명령어는 buffer에서 제거한다. ( 중복이 되거나 실행할 필요가 없는 command 는 삭제.. )
        * Merge Erase
           -> erase 명령어 횟수 줄이기...
        * Fast Read
           -> command buffer에 있는 경우 ssd_nand.txt 읽어들이지 않고 buffer에 있는 값 반환해주는 기능.
-       * 
   - [ ] Flush
        * command buffer 에 있는 항목들을 한번에 실행하고 buffer 폴더에 있는 텍스트 파일명들을 empty 로 변경해 준다.
-  - [ ] Comnnand Buffer : 명령어 모아 두는 곳
+        
 ### Test Shell 미션2
    - [ ] `erase` 기능 구현
          E [LBA] [SIZE]  : size 0 보다 커야 할지는 여기서 판단해도 되고 안해도 된다. .
@@ -123,7 +138,20 @@ ___
          파일명 : latest.log => (10KB 넘어가는 경우 ) until_250403_09h_30m_11s.log 로 변경해서 저장해 준다.
          파일 압축하기 : until_*.log 파일이 2개이상 되는 경우 오래된 파일의 확장자를 until_*.zip 으로 변경해 준다.
    - [ ] Flush
+         
  ### Test Script 미션2
+  - [] Test Scenario
+    • 0 ~ 2번 LBA 삭제
+    • Loop 30회
+      - 2번 LBA Write
+      - 2번 LBA OverWrite
+      - 2 ~ 4번 LBA 삭제
+      - 4번 LBA Write
+      - 4번 LBA OverWrite
+      - 4 ~ 6번 LBA 삭제
+      - 6번 LBA Write
+      - 6번 LBA OverWrite
+      - 6 ~ 8번 LBA 삭제
   - [ ] Runner : 여러개의 테스트 스크립트를 모아서 한번에 수행 시킬 수 있는 기능.
        * 실행 방식은 아래와 같이 두가지.. 
          - 첫번째 : shell shell_scripts.txt : shell_scripts.txt 파일에 아래 항목들어 적어주면 순차적으로 실행 시켜주는 기능.
@@ -141,5 +169,7 @@ ___
            3_WriteREadAging ___ Run... FAIL...
   - [ ] 새로운 Test Script 에 대한 처리 😵‍💫
        * Shell 을 다시 빌드하지 않고 처리하는 방법 추가해야함. 
- <br>
+
+</details>
+
 [🔝 목차로 돌아가기](#toc)
