@@ -29,6 +29,7 @@ class ShellTest : public IShell {
   bool excuteErase(std::istringstream &iss);
   bool excuteEraseRange(std::istringstream &iss);
   bool excuteFlush(std::istringstream &iss);
+  void sendEraseCommand(long long sizeNum, int lbaNum);
   bool checkValidArgument(std::string &trashStr);
   bool checkValidLba(std::string &lbaStr);
   bool checkValidValue(std::string &valueStr);
