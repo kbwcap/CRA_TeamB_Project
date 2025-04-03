@@ -119,7 +119,7 @@ public:
     if (ssd.isOutOfRange(lba)) return false;
     ssd.setData(lba, data);
 
-    return true;
+    return ssd.saveStorageToFile();
   }
 
 private:
