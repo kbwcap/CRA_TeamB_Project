@@ -9,13 +9,13 @@ class CommandFixture : public Test {
   VirtualSSD ssd;
   std::shared_ptr<ICommand> makeCommand(char cmd, int lba, uint32_t value) {
     std::shared_ptr<ICommand> ret;
-    if (cmd == 'W' || cmd == 'w') {
+    if (cmd == 'W') {
       ret = std::make_shared<WriteCommand>(ssd, lba, value);
     }
-    else if (cmd == 'R' || cmd == 'r') {
+    else if (cmd == 'R') {
       ret = std::make_shared<ReadCommand>(ssd, lba);
     }
-    else if (cmd == 'F' || cmd == 'f') {
+    else if (cmd == 'F') {
       ret = std::make_shared<FlushCommand>(ssd);
     }
     return ret;
