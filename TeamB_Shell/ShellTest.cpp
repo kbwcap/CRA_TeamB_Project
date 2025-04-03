@@ -25,6 +25,9 @@ void ShellTest::executeCommand(const std::string &input) {
   } else if (command == "erase") {
     if (!excuteErase(iss)) std::cout << invalid_command;
     return;
+  } else if (command == "erase_range") {
+    if (!excuteEraseRange(iss)) std::cout << invalid_command;
+    return;
   } else if (command == "flush") {
     if (!excuteFlush(iss)) std::cout << invalid_command;
     return;
@@ -39,22 +42,7 @@ void ShellTest::executeCommand(const std::string &input) {
   }
 }
 
-void ShellTest::printHelp() {
-  std::cout
-      << R"(Best Reviewers (A community of individuals who aspire to be the best reviewers) 
-- byeongun.ko [Team Leader]
-- yuz010.kim
-- yunje.kim	
-- hjy.park
-
-[Commands]
-- write LBA Value : Writes the specified Value to the given LBA.
-- read LBA : Reads the Value from the given LBA.
-- exit : Exits the Shell Test.
-- fullwrite Value : Writes the specified Value to all LBAs.
-- fullread : Reads values from all LBAs.
-)" << std::endl;
-}
+void ShellTest::printHelp() { std::cout << help_command << std::endl; }
 
 bool ShellTest::excuteWrite(std::istringstream &iss) {
   std::string lbaStr, valueStr, trashStr;
@@ -64,8 +52,8 @@ bool ShellTest::excuteWrite(std::istringstream &iss) {
   if (!checkValidLba(lbaStr)) return false;
   if (!checkValidValue(valueStr)) return false;
 
-  std::string newCommand = "ssd.exe W " + lbaStr + " " + valueStr;
-  system(newCommand.c_str());
+  std::string sendCommand = "ssd.exe W " + lbaStr + " " + valueStr;
+  system(sendCommand.c_str());
   std::cout << write_done;
 
   return true;
@@ -78,8 +66,8 @@ bool ShellTest::excuteRead(std::istringstream &iss) {
   if (!checkValidArgument(trashStr)) return false;
   if (!checkValidLba(lbaStr)) return false;
 
-  std::string newCommand = "ssd.exe R " + lbaStr;
-  system(newCommand.c_str());
+  std::string sendCommand = "ssd.exe R " + lbaStr;
+  system(sendCommand.c_str());
   std::cout << read_done + getOutput() + "\n";
 
   return true;
@@ -93,9 +81,9 @@ bool ShellTest::excuteFullWrite(std::istringstream &iss) {
   if (!checkValidValue(valueStr)) return false;
 
   for (int LbaNum = 0; LbaNum < MAX_LBA; LbaNum++) {
-    std::string newCommand =
+    std::string sendCommand =
         "ssd.exe W " + std::to_string(LbaNum) + " " + valueStr;
-    system(newCommand.c_str());
+    system(sendCommand.c_str());
   }
   std::cout << fullwrite_done;
 
@@ -109,8 +97,8 @@ bool ShellTest::excuteFullRead(std::istringstream &iss) {
   if (!checkValidArgument(trashStr)) return false;
 
   for (int LbaNum = 0; LbaNum < MAX_LBA; LbaNum++) {
-    std::string newCommand = "ssd.exe R " + std::to_string(LbaNum);
-    system(newCommand.c_str());
+    std::string sendCommand = "ssd.exe R " + std::to_string(LbaNum);
+    system(sendCommand.c_str());
     std::cout << read_done + getOutput() + "\n";
   }
 
@@ -123,26 +111,29 @@ bool ShellTest::excuteErase(std::istringstream &iss) {
 
   if (!checkValidArgument(trashStr)) return false;
   if (!checkValidLba(lbaStr)) return false;
-  if (!checkValidSize(sizeStr)) {
+  if (!checkValidSize(sizeStr)) return false;
+
+  sendEraseCommand(std::stoll(sizeStr), std::stoi(lbaStr));
+  return true;
+}
+
+bool ShellTest::excuteEraseRange(std::istringstream &iss) {
+  std::string startLbaStr, endLbaStr, trashStr;
+  iss >> startLbaStr >> endLbaStr >> trashStr;
+
+  if (!checkValidArgument(trashStr)) return false;
+  if (!checkValidLba(startLbaStr)) return false;
+  if (!checkValidLba(endLbaStr)) return false;
+
+  int startLbaNum = std::stoi(startLbaStr);
+  int endLbaNum = std::stoi(endLbaStr);
+
+  if (startLbaNum > endLbaNum) {
+    std::cout << err_start_bigger_than_end;
     return false;
   }
 
-  long long sizeNum = std::stoll(sizeStr);
-  int lbaNum = std::stoi(lbaStr);
-  while (sizeNum > 0) {
-    int size = MAX_SIZE;
-    if (size > sizeNum) size = sizeNum;
-
-    std::string newCommand =
-        "ssd.exe E " + std::to_string(lbaNum) + " " + std::to_string(size);
-    system(newCommand.c_str());
-
-    std::cout << newCommand << std::endl;
-
-    lbaNum += size;
-    sizeNum -= size;
-  }
-
+  sendEraseCommand(endLbaNum - startLbaNum + 1, startLbaNum);
   return true;
 }
 
@@ -152,8 +143,8 @@ bool ShellTest::excuteFlush(std::istringstream &iss) {
 
   if (!checkValidArgument(trashStr)) return false;
 
-  std::string newCommand = "ssd.exe F";
-  system(newCommand.c_str());
+  std::string sendCommand = "ssd.exe F";
+  system(sendCommand.c_str());
   std::cout << flush_done;
 
   return true;
@@ -171,6 +162,22 @@ std::string ShellTest::readFromFile(const std::string &output_file_name) {
   std::string line = "";
   std::getline(file, line);
   return line;
+}
+
+void ShellTest::sendEraseCommand(long long sizeNum, int lbaNum) {
+  while (sizeNum > 0) {
+    int size = MAX_SIZE;
+    if (size > sizeNum) size = sizeNum;
+
+    std::string sendCommand =
+        "ssd.exe E " + std::to_string(lbaNum) + " " + std::to_string(size);
+    system(sendCommand.c_str());
+
+    std::cout << erase_done << sendCommand << std::endl;
+
+    lbaNum += size;
+    sizeNum -= size;
+  }
 }
 
 bool ShellTest::checkValidArgument(std::string &trashStr) {
