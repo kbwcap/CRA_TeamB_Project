@@ -22,6 +22,9 @@ void ShellTest::executeCommand(const std::string &input) {
   } else if (command == "fullread") {
     if (!excuteFullRead(iss)) std::cout << invalid_command;
     return;
+  } else if (command == "erase") {
+    if (!excuteErase(iss)) std::cout << invalid_command;
+    return;
   } else if (command == "flush") {
     if (!excuteFlush(iss)) std::cout << invalid_command;
     return;
@@ -110,6 +113,35 @@ bool ShellTest::excuteFullRead(std::istringstream &iss) {
   return true;
 }
 
+bool ShellTest::excuteErase(std::istringstream &iss) {
+  std::string lbaStr, sizeStr, trashStr;
+  iss >> lbaStr >> sizeStr >> trashStr;
+
+  if (!checkValidArgument(trashStr)) return false;
+  if (!checkValidLba(lbaStr)) return false;
+  if (!checkValidSize(sizeStr)) {
+    return false;
+  }
+
+  long long sizeNum = std::stoll(sizeStr);
+  int lbaNum = std::stoi(lbaStr);
+  while (sizeNum > 0) {
+    int size = MAX_SIZE;
+    if (size > sizeNum) size = sizeNum;
+
+    std::string newCommand =
+        "ssd.exe E " + std::to_string(lbaNum) + " " + std::to_string(size);
+    system(newCommand.c_str());
+
+    std::cout << newCommand << std::endl;
+
+    lbaNum += size;
+    sizeNum -= size;
+  }
+
+  return true;
+}
+
 bool ShellTest::excuteFlush(std::istringstream &iss) {
   std::string trashStr;
   iss >> trashStr;
@@ -158,5 +190,19 @@ bool ShellTest::checkValidValue(std::string &valueStr) {
         (valueChar < 'A' || valueChar > 'F') &&
         (valueChar < 'a' || valueChar > 'f'))
       return false;
+  return true;
+}
+
+bool ShellTest::checkValidSize(std::string &sizeStr) {
+  // long long 이상인 경우
+  if (sizeStr.length() >= 19) {
+    std::cout << err_too_big_size;
+    return false;
+  }
+  if (sizeStr[0] < '1' || sizeStr[0] > '9') return false;
+
+  for (char valueChar : sizeStr)
+    if (valueChar < '0' || valueChar > '9') return false;
+
   return true;
 }

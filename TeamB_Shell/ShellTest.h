@@ -22,7 +22,9 @@ class ShellTest : public IShell {
   const std::string fullwrite_done = "[FullWrite] Done\n";
   const std::string invalid_command = "INVALID COMMAND\n";
   const std::string flush_done = "[Flush] Done\n";
+  const std::string err_too_big_size = "[Error] Size is too big\n";
   const int MAX_LBA = 100;
+  const int MAX_SIZE = 10;
 
  private:
   void printHelp(); 
@@ -30,9 +32,11 @@ class ShellTest : public IShell {
   bool excuteRead(std::istringstream &iss);
   bool excuteFullWrite(std::istringstream &iss);
   bool excuteFullRead(std::istringstream &iss);
+  bool excuteErase(std::istringstream &iss);
   bool excuteFlush(std::istringstream &iss);
   bool checkValidArgument(std::string &trashStr);
   bool checkValidLba(std::string &lbaStr);
   bool checkValidValue(std::string &valueStr);
+  bool checkValidSize(std::string &valueStr);
   const std::string output_file_name = "ssd_output.txt";
 };

@@ -117,3 +117,30 @@ TEST_F(CommandFixture, FlushCmdInvaild) {
   shellTest.executeCommand("flush gogo\n");
   EXPECT_EQ(buffer.str(), shellTest.invalid_command);
 }
+
+TEST_F(CommandFixture, EraseValid) {
+  shellTest.executeCommand("erase 30 15\n");
+  std::string expected = "ssd.exe E 30 10\nssd.exe E 40 5\n";
+  EXPECT_EQ(buffer.str(), expected);
+}
+
+TEST_F(CommandFixture, EraseCmdInvalid) {
+  shellTest.executeCommand("erase 30 0xFFFFFFFF gogo\n");
+  EXPECT_EQ(buffer.str(), shellTest.invalid_command);
+}
+
+TEST_F(CommandFixture, EraseLbaInvalid) {
+  shellTest.executeCommand("erase a3 0xAAAABBBB\n");
+  EXPECT_EQ(buffer.str(), shellTest.invalid_command);
+}
+
+TEST_F(CommandFixture, EraseValueInvalid) {
+  shellTest.executeCommand("erase 30 0xFF\n");
+  EXPECT_EQ(buffer.str(), shellTest.invalid_command);
+}
+
+TEST_F(CommandFixture, EraseTooBigValueInvalid) {
+  shellTest.executeCommand("erase 30 10000000000000000000\n");
+  EXPECT_EQ(buffer.str(),
+            shellTest.err_too_big_size + shellTest.invalid_command);
+}
