@@ -33,6 +33,6 @@ string getExpectedReadValue(int LBA, unsigned int expectedData);
 // 테스트 케이스
 // ======================
 
-bool Test_FullWriteAndReadCompare_1();
-bool Test_PartialLBAWrite_2();
-bool Test_WriteReadAging_3();
+bool TestMock_FullWriteAndReadCompare_1();
+bool TestMock_PartialLBAWrite_2();
+bool TestMock_WriteReadAging_3();

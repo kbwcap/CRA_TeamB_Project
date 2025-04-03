@@ -70,7 +70,7 @@ bool readCompare(int LBA, unsigned int expectedData, MockShell& mockShell) {
   return (mockShell.getOutput() == getExpectedReadValue(LBA, expectedData));
 }
 
-bool Test_FullWriteAndReadCompare_1() {
+bool TestMock_FullWriteAndReadCompare_1() {
   MockShell mockShell;
   const int minLba = 0;
   const int maxLba = 99;
@@ -132,7 +132,7 @@ bool Test_FullWriteAndReadCompare_1() {
   return true;
 }
 
-bool Test_PartialLBAWrite_2() {
+bool TestMock_PartialLBAWrite_2() {
   MockShell mockShell;
   vector<string> writeInput;
   vector<string> readInput;
@@ -190,7 +190,7 @@ bool Test_PartialLBAWrite_2() {
   return true;
 }
 
-bool Test_WriteReadAging_3() {
+bool TestMock_WriteReadAging_3() {
   MockShell mockShell;
 
   const int maxLoopCount = 200;
@@ -265,10 +265,10 @@ bool Test_WriteReadAging_3() {
 class TestScriptFixture : public Test {
  public:
   void registerAllTestcases() {
-    testManager.registerTest("1_FullWriteAndReadCompare",
-                             Test_FullWriteAndReadCompare_1);
-    testManager.registerTest("2_PartialLBAWrite", Test_PartialLBAWrite_2);
-    testManager.registerTest("3_WriteReadAging", Test_WriteReadAging_3);
+    testManager.registerTest("1_FullWriteAndReadCompare_Mock",
+                             TestMock_FullWriteAndReadCompare_1);
+    testManager.registerTest("2_PartialLBAWrite_Mock", TestMock_PartialLBAWrite_2);
+    testManager.registerTest("3_WriteReadAging_Mock", TestMock_WriteReadAging_3);
   }
 
   void runTestcase(const std::string& testName) {
