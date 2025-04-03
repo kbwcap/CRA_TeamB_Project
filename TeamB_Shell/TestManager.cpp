@@ -59,17 +59,6 @@ string toHexString(unsigned int value) {
   return ss.str();
 }
 
-string getExpectedReadValue(int LBA, unsigned int expectedData) {
-  return std::to_string(LBA) + " " + toHexString(expectedData);
-}
-
-bool readCompare(int LBA, unsigned int expectedData, MockShell& mockShell) {
-  string readInput = "r " + std::to_string(LBA);
-  mockShell.executeCommand(readInput);
-
-  return (mockShell.getOutput() == getExpectedReadValue(LBA, expectedData));
-}
-
 bool TestMock_FullWriteAndReadCompare_1() {
   NiceMock<MockShell> mockShell;
   UserCommandQueueMock queue(mockShell);

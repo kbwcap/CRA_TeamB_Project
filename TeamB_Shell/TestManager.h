@@ -27,7 +27,6 @@ class TestManager {
 // lib
 uint32_t patternGenerator(uint32_t& state);
 string toHexString(unsigned int value);
-string getExpectedReadValue(int LBA, unsigned int expectedData);
 
 // ======================
 // 테스트 케이스
