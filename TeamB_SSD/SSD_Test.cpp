@@ -1,6 +1,11 @@
-#include "VirtualSSD.cpp"
+#include "VirtualSSD.h"
 #include "gmock/gmock.h"
 #include "iostream"
+#include "EraseCommand.h"
+#include "WriteCommand.h"
+#include "FlushCommand.h"
+#include "EraseCommand.h"
+#include "ReadCommand.h"
 
 using namespace testing;
 
