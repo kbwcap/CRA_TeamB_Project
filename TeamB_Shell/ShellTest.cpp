@@ -31,7 +31,10 @@ void ShellTest::executeCommand(const std::string &input) {
   } else if (command == "flush") {
     if (!excuteFlush(iss)) std::cout << invalid_command;
     return;
-  } else {
+  } else if (command == script_file_name){
+    runner();
+  }
+  else {
     int status = testManager->runTest(input);
     if (status == testManager->NO_TC) {
       std::cout << invalid_command;
@@ -43,6 +46,35 @@ void ShellTest::executeCommand(const std::string &input) {
 }
 
 void ShellTest::printHelp() { std::cout << help_command << std::endl; }
+
+void ShellTest::runner() {
+  std::ifstream file(script_file_name);
+  if (!file.is_open()) {
+    throw std::ios_base::failure("Failed to open file: " + script_file_name);
+  }
+
+  std::vector<std::string> testScripts;
+  std::string testcase;
+  while (std::getline(file, testcase)) {
+      std::cout << testcase;
+    testScripts.push_back(testcase);
+  }
+  file.close();
+
+  int status;
+  for (const auto &testcase : testScripts) {
+    status = testManager->runTest(testcase);
+    std::cout << testcase << "  ----  Run...";
+    if (status == testManager->FAIL) {
+      std::cout << "FAIL!\n";
+      return;
+    } else if (status == testManager->NO_TC) {
+      return;
+    }
+    std::cout << "PASS\n";
+  }
+  return;
+}
 
 bool ShellTest::excuteWrite(std::istringstream &iss) {
   std::string lbaStr, valueStr, trashStr;
