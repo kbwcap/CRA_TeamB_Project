@@ -15,9 +15,8 @@ public:
 
 protected:
   VirtualSSD& ssd;
-  int lba;
 
-  ICommand(VirtualSSD& ssd, int lba) : ssd(ssd), lba(lba) {}
+  ICommand(VirtualSSD& ssd) : ssd(ssd) {}
 };
 
 class VirtualSSD {
@@ -89,10 +88,11 @@ public:
     }
   }
 
-  void saveOutputToFile(std::string outData) {
+  bool saveOutputToFile(std::string outData) {
     std::ofstream outputFile(out_file, std::ios::out);
     outputFile << outData << '\n';
     outputFile.close();
+    return true;
   }
 
   bool isOutOfRange(int lba) {
@@ -112,25 +112,25 @@ private:
 class WriteCommand : public ICommand {
 public:
   WriteCommand(VirtualSSD& ssd, int lba, uint32_t data)
-    : ICommand(ssd, lba), data(data) {
+    : ICommand(ssd), lba(lba), data(data) {
   }
 
   bool execute() override {
     if (ssd.isOutOfRange(lba)) return false;
     ssd.setData(lba, data);
-    ssd.saveStorageToFile();
 
-    return true;
+    return ssd.saveStorageToFile();
   }
 
 private:
+  int lba;
   uint32_t data;
 };
 
 class ReadCommand : public ICommand {
 public:
   ReadCommand(VirtualSSD& ssd, int lba)
-    : ICommand(ssd, lba) {
+    : ICommand(ssd), lba(lba) {
   }
 
   bool execute() override {
@@ -139,9 +139,20 @@ public:
     std::stringstream ss;
     ss << "LBA " << lba << " 0x" << std::setfill('0') << std::setw(8)
       << std::hex << std::uppercase << ssd.getData(lba);
-    ssd.saveOutputToFile(ss.str());
 
-    return true;
+    return  ssd.saveOutputToFile(ss.str());
   }
+private:
+  int lba;
 };
 
+class FlushCommand : public ICommand {
+public:
+  FlushCommand(VirtualSSD& ssd)
+    : ICommand(ssd) {
+  }
+
+  bool execute() override {
+    return ssd.saveStorageToFile();
+  }
+};
