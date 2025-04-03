@@ -1,3 +1,4 @@
+아래에서 ## Team Proejct 미션1, ## Team Project 미션2 아래 부분들을 Collapse 추가해줘
 # 🏆 B팀의 SSD 프로젝트 체크리스트 👍
 
 ## 📚 목차<a name="toc"></a> 
@@ -48,6 +49,9 @@ ___
 ---
 
 ## Team Project 미션 1
+<details>
+<summary>상세 내용</summary>
+ 
  ### 기본 조건
    - `ssd_nand.txt`: 저장 파일 (초기 자동 생성)
    - `ssd_out.txt`: read 명령 결과 저장
@@ -83,9 +87,14 @@ ___
   - [ ] Test Script 2
   - [ ] Test Script 3
 
+</details>
+
 [🔝 목차로 돌아가기](#toc)
 
 ## Team Project 미션 2
+<details>
+<summary>상세 내용</summary>
+ 
 ### SSD 미션2
    - [ ] `erase` 기능 구현
        * E [LBA] [SIZE]  : size 0 보다 커야 함.
@@ -160,5 +169,7 @@ ___
            3_WriteREadAging ___ Run... FAIL...
   - [ ] 새로운 Test Script 에 대한 처리 😵‍💫
        * Shell 을 다시 빌드하지 않고 처리하는 방법 추가해야함. 
+
+</details>
 
 [🔝 목차로 돌아가기](#toc)
