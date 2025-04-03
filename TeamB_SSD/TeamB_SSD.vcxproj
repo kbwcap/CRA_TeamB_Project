@@ -138,12 +138,22 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="EraseCommand.cpp" />
+    <ClCompile Include="FlushCommand.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ReadCommand.cpp" />
     <ClCompile Include="SSD_Test.cpp" />
     <ClCompile Include="VirtualSSD.cpp" />
+    <ClCompile Include="WriteCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="define.h" />
+    <ClInclude Include="EraseCommand.h" />
+    <ClInclude Include="FlushCommand.h" />
+    <ClInclude Include="ICommand.h" />
+    <ClInclude Include="ReadCommand.h" />
+    <ClInclude Include="VirtualSSD.h" />
+    <ClInclude Include="WriteCommand.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

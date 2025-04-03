@@ -5,7 +5,11 @@
 #include <memory>
 #include <string>
 
-#include "VirtualSSD.cpp"
+#include "VirtualSSD.h"
+#include "WriteCommand.h"
+#include "ReadCommand.h"
+#include "FlushCommand.h"
+#include "EraseCommand.h"
 #include "gmock/gmock.h"
 
 bool isValidHex(const char* str) {
