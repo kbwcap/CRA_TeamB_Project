@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <map>
 #include <string>
 #include <vector>
@@ -17,8 +17,11 @@ class TestManager {
  public:
   TestManager() = default;
   void registerTest(const string& name, TestFn func);
-  bool runTest(const string& name);
+  int runTest(const string& name);
   vector<string> listTests();
+  const int FAIL = 0;
+  const int PASS = 1;
+  const int NO_TC = 2;
 
  private:
   map<string, TestFn> testCases;
@@ -27,11 +30,14 @@ class TestManager {
 // lib
 uint32_t patternGenerator(uint32_t& state);
 string toHexString(unsigned int value);
-string getExpectedReadValue(unsigned int LBA, unsigned int expectedData);
 
 // ======================
 // 테스트 케이스
 // ======================
+
+bool TestMock_FullWriteAndReadCompare_1();
+bool TestMock_PartialLBAWrite_2();
+bool TestMock_WriteReadAging_3();
 
 bool Test_FullWriteAndReadCompare_1();
 bool Test_PartialLBAWrite_2();

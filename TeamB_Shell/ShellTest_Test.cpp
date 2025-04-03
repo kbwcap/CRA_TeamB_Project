@@ -8,7 +8,8 @@ class CommandFixture : public Test {
  protected:
   CommandFixture() { oldCout = std::cout.rdbuf(buffer.rdbuf()); }
   ~CommandFixture() { std::cout.rdbuf(oldCout); }
-  ShellTest shellTest;
+  ShellTest shellTest{&testManager};
+  TestManager testManager;
   std::stringstream buffer;
 
  private:
