@@ -24,6 +24,9 @@ public:
   bool saveOutputToFile(std::string outData);
   bool isOutOfRange(int lba);
 
+  void clearCommandBuff() {
+    commandBuffer.clear();
+  }
 private:
   uint32_t storage[MAX_RANGE_NUM];
   const std::string nand_file;

@@ -12,6 +12,14 @@ VirtualSSD::VirtualSSD(const std::string& nand, const std::string& out)
 }
 
 bool VirtualSSD::executeCommand(std::shared_ptr<ICommand> command) {
+  if (auto writeCommand = dynamic_cast<WriteCommand*>(command.get())) {
+    //std::cout << "ADD WriteCommand: W " << writeCommand->getLBA() << " " << std::hex << writeCommand->getData() << std::endl;
+    commandBuffer.addCommand(command);
+  }
+  else if (auto eraseCommand = dynamic_cast<EraseCommand*>(command.get())) {
+    //std::cout << "ADD EraseCommand: E " << eraseCommand->getLBA() << " " << std::hex << eraseCommand->getSize() << std::endl;
+    commandBuffer.addCommand(command);
+  }
   return command->execute();
 }
 

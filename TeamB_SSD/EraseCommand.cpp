@@ -23,14 +23,11 @@ bool EraseCommand::execute() {
 
   for (int startLBA = lba; startLBA < lba + size; ++startLBA) {
     if (ssd.isOutOfRange(startLBA)) {
-      ssd.saveStorageToFile();
       ssd.saveOutputToFile(ERROR_OUT_OF_RANGE);
       return false;
     }
     ssd.setData(startLBA, 0x00000000);  // Default Value
   }
-
-  ssd.saveStorageToFile();
   return true;
 }
 

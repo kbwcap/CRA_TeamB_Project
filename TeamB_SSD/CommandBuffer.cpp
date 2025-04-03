@@ -11,29 +11,13 @@ CommandBuffer::~CommandBuffer() {
 
 void CommandBuffer::addCommand(std::shared_ptr<ICommand> command) {
   if (commandCount >= MAX_COMMANDS) {
-    flush();
-  }
-  commandBuffer[commandCount++] = command;
-}
-
-void CommandBuffer::flush() {
-  std::ofstream file(bufferFile, std::ios::trunc);
-  if (file.is_open()) {
+    std::cout << "kbw kbw ::: " << commandCount << std::endl;
     for (int i = 0; i < commandCount; ++i) {
-      std::stringstream ss;
-      if (auto writeCommand = dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
-        ss << "W " << writeCommand->getLBA() << " " << writeCommand->getData() << std::endl;
-      }
-      else if (auto eraseCommand = dynamic_cast<EraseCommand*>(commandBuffer[i].get())) {
-        ss << "E " << eraseCommand->getLBA() << " " << eraseCommand->getSize() << std::endl;
-      }
-      file << ss.str();
       commandBuffer[i]->execute();
     }
-    file.close();
-    std::cout << "Commands flushed to file: " << bufferFile << std::endl;
+    clear();
   }
-  commandCount = 0;
+  commandBuffer[commandCount++] = command;
 }
 
 void CommandBuffer::reloadFromCommandFile() {
@@ -54,18 +38,18 @@ void CommandBuffer::reloadFromCommandFile() {
     if (iss >> commandType >> lba >> dataOrSize) {
       if (commandType == "W") {
         auto command = std::make_shared<WriteCommand>(ssd, lba, dataOrSize);
-        addCommand(command); // WriteCommand 추가
-        std::cout << "Loaded WriteCommand: W " << lba << " " << dataOrSize << std::endl;
+        addCommand(command);
+        //std::cout << "Loaded WriteCommand: W " << lba << " " << std::hex << dataOrSize << std::endl;
       }
       else if (commandType == "E") {
         auto command = std::make_shared<EraseCommand>(ssd, lba, dataOrSize);
-        addCommand(command); // EraseCommand 추가
-        std::cout << "Loaded EraseCommand: E " << lba << " " << dataOrSize << std::endl;
+        addCommand(command);
+        //std::cout << "Loaded EraseCommand: E " << lba << " " << std::hex << dataOrSize << std::endl;
       }
     }
   }
-
   file.close();
+  clearCommandFile();
 }
 
 void CommandBuffer::saveCommandToFile() {
@@ -82,5 +66,23 @@ void CommandBuffer::saveCommandToFile() {
       file << ss.str();
     }
     file.close();
+  }
+}
+
+void CommandBuffer::clear() {
+  commandCount = 0;
+  for (int i = 0; i < MAX_COMMANDS; ++i) {
+    commandBuffer[i] = nullptr;
+  }
+  clearCommandFile();
+}
+
+void CommandBuffer::clearCommandFile() {
+  std::ofstream file(bufferFile, std::ios::trunc);
+  if (file.is_open()) {
+    file.close();
+  }
+  else {
+    std::cerr << "Error: Unable to open file " << bufferFile << " for clearing." << std::endl;
   }
 }
