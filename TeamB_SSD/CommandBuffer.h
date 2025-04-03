@@ -20,12 +20,15 @@ public:
 
   void clear();
 
-private:
   void reloadFromCommandFile();
+
+private:
 
   void saveCommandToFile();
 
   void clearCommandFile();
+
+  void excuteCommand();
 
   std::shared_ptr<ICommand> commandBuffer[MAX_COMMANDS] = {};
   int commandCount;

@@ -1,9 +1,8 @@
 #include "CommandBuffer.h"
+#include "VirtualSSD.h"
 
 CommandBuffer::CommandBuffer(VirtualSSD& ssd, const std::string& bufferFile)
-  : ssd(ssd), commandCount(0), bufferFile(bufferFile) {
-  reloadFromCommandFile();
-}
+  : ssd(ssd), commandCount(0), bufferFile(bufferFile) {}
 
 CommandBuffer::~CommandBuffer() {
   saveCommandToFile();
@@ -11,10 +10,7 @@ CommandBuffer::~CommandBuffer() {
 
 void CommandBuffer::addCommand(std::shared_ptr<ICommand> command) {
   if (commandCount >= MAX_COMMANDS) {
-    std::cout << "kbw kbw ::: " << commandCount << std::endl;
-    for (int i = 0; i < commandCount; ++i) {
-      commandBuffer[i]->execute();
-    }
+    excuteCommand();
     clear();
   }
   commandBuffer[commandCount++] = command;
@@ -24,7 +20,6 @@ void CommandBuffer::reloadFromCommandFile() {
   std::ifstream file(bufferFile);
 
   if (!file.is_open()) {
-    std::cout << "Command buffer file not found, starting with an empty buffer." << std::endl;
     return;
   }
 
@@ -36,20 +31,22 @@ void CommandBuffer::reloadFromCommandFile() {
     uint32_t dataOrSize;
 
     if (iss >> commandType >> lba >> dataOrSize) {
+        std::shared_ptr<ICommand> command = nullptr;
       if (commandType == "W") {
-        auto command = std::make_shared<WriteCommand>(ssd, lba, dataOrSize);
+        command = std::make_shared<WriteCommand>(ssd, lba, dataOrSize);
         addCommand(command);
-        //std::cout << "Loaded WriteCommand: W " << lba << " " << std::hex << dataOrSize << std::endl;
+        std::cout << "Loaded WriteCommand: W " << lba << " 0x" << std::hex << dataOrSize << std::endl;
       }
       else if (commandType == "E") {
-        auto command = std::make_shared<EraseCommand>(ssd, lba, dataOrSize);
+        command = std::make_shared<EraseCommand>(ssd, lba, dataOrSize);
         addCommand(command);
-        //std::cout << "Loaded EraseCommand: E " << lba << " " << std::hex << dataOrSize << std::endl;
+        std::cout << "Loaded EraseCommand: E " << lba << " " << dataOrSize << std::endl;
       }
     }
   }
   file.close();
   clearCommandFile();
+  excuteCommand();
 }
 
 void CommandBuffer::saveCommandToFile() {
@@ -59,6 +56,7 @@ void CommandBuffer::saveCommandToFile() {
       std::stringstream ss;
       if (auto writeCommand = dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
         ss << "W " << writeCommand->getLBA() << " " << writeCommand->getData() << std::endl;
+
       }
       else if (auto eraseCommand = dynamic_cast<EraseCommand*>(commandBuffer[i].get())) {
         ss << "E " << eraseCommand->getLBA() << " " << eraseCommand->getSize() << std::endl;
@@ -85,4 +83,10 @@ void CommandBuffer::clearCommandFile() {
   else {
     std::cerr << "Error: Unable to open file " << bufferFile << " for clearing." << std::endl;
   }
+}
+
+void CommandBuffer::excuteCommand() {
+    for (int i = 0; i < commandCount; ++i) {
+        commandBuffer[i]->execute();
+    }
 }
