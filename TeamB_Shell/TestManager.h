@@ -43,3 +43,4 @@ bool TestMock_EraseAndWriteAging_4();
 bool Test_FullWriteAndReadCompare_1();
 bool Test_PartialLBAWrite_2();
 bool Test_WriteReadAging_3();
+bool Test_EraseAndWriteAging_4();
