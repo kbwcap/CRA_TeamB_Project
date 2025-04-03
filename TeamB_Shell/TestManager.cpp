@@ -201,3 +201,74 @@ TEST_F(TestScriptFixture, PrefixTest) {
   registerAllTestcases();
   runAllPrefixTestcases();
 }
+
+bool Test_FullWriteAndReadCompare_1() {
+  ShellTest realShell;
+  UserCommandQueue queue(realShell);
+
+  const int minLba = 0;
+  const int maxLba = 99;
+  const unsigned int groupSize = 5;
+
+  uint32_t seed = static_cast<uint32_t>(time(0));
+  for (int base = minLba; base <= maxLba; base += groupSize + 1) {
+    unsigned int pattern = patternGenerator(seed);
+
+    for (unsigned int offset = 0; offset < groupSize && base + offset <= maxLba;
+         ++offset) {
+      if (!queue.enqueueWrite(base + offset, pattern)) return false;
+    }
+    for (unsigned int offset = 0; offset < groupSize && base + offset <= maxLba;
+         ++offset) {
+      if (!queue.enqueueRead(base + offset, pattern)) return false;
+    }
+
+    if (!queue.flush()) return false;
+  }
+  return true;
+}
+
+bool Test_PartialLBAWrite_2() {
+  ShellTest realShell;
+  UserCommandQueue queue(realShell);
+
+  const std::vector<int> lbaOrder = {4, 0, 3, 1, 2};
+
+  uint32_t seed = static_cast<uint32_t>(time(0));
+  for (int loop = 0; loop < 30; ++loop) {
+    unsigned int pattern = patternGenerator(seed);
+
+    // Write sequence
+    for (int lba : lbaOrder) {
+      if (!queue.enqueueWrite(lba, pattern)) return false;
+    }
+
+    // ReadCompare sequence
+    for (int lba : lbaOrder) {
+      if (!queue.enqueueRead(lba, pattern)) return false;
+    }
+  }
+
+  return queue.flush();
+}
+
+bool Test_WriteReadAging_3() {
+  ShellTest realShell;
+  UserCommandQueue queue(realShell);
+
+  const int maxLoopCount = 200;
+  unsigned int pat1, pat2;
+
+  uint32_t seed = static_cast<uint32_t>(time(0));
+  for (int loop = 0; loop < maxLoopCount; loop++) {
+    pat1 = patternGenerator(seed);
+    pat2 = patternGenerator(seed);
+    if (!queue.enqueueWrite(0, pat1)) return false;
+    if (!queue.enqueueWrite(99, pat2)) return false;
+
+    if (!queue.enqueueRead(0, pat1)) return false;
+    if (!queue.enqueueRead(99, pat2)) return false;
+  }
+
+  return queue.flush();
+}
