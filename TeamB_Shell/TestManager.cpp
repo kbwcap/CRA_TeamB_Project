@@ -17,17 +17,19 @@ void TestManager::registerTest(const string& name, TestFn func) {
   testCases[name] = func;
 }
 
-bool TestManager::runTest(const string& name) {
-  if (testCases.count(name)) return testCases[name]();
+int TestManager::runTest(const string& name) {
+  if (testCases.count(name)) {
+    return (testCases[name]()) ? PASS : FAIL;
+  }
 
   // 없으면 prefix 매칭 탐색
   for (const auto& pair : testCases) {
     if (pair.first.rfind(name, 0) == 0) {
-      return pair.second();
+      return (pair.second()) ? PASS : FAIL;
     }
   }
 
-  return false;
+  return NO_TC;
 }
 
 vector<string> TestManager::listTests() {
@@ -146,9 +148,9 @@ class TestScriptFixture : public Test {
   }
 
   void runTestcase(const std::string& testName) {
-    bool result = testManager.runTest(testName);
+    int result = testManager.runTest(testName);
     std::cout << "[Test: " << testName << "] " << result << std::endl;
-    EXPECT_TRUE(result);
+    EXPECT_EQ(result, testManager.PASS);
   }
 
   void runPrefixTestcase(const std::string& testName) {
@@ -168,9 +170,9 @@ class TestScriptFixture : public Test {
                 << "] Invalid number format: " << e.what() << std::endl;
       return;
     }
-    bool result = testManager.runTest(strNum + "_");
+    int result = testManager.runTest(strNum + "_");
     std::cout << "[Test: " << testName << "] " << result << std::endl;
-    EXPECT_TRUE(result);
+    EXPECT_EQ(result, testManager.PASS);
   }
 
   void runAllTestcases() {

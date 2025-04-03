@@ -17,8 +17,11 @@ class TestManager {
  public:
   TestManager() = default;
   void registerTest(const string& name, TestFn func);
-  bool runTest(const string& name);
+  int runTest(const string& name);
   vector<string> listTests();
+  const int FAIL = 0;
+  const int PASS = 1;
+  const int NO_TC = 2;
 
  private:
   map<string, TestFn> testCases;

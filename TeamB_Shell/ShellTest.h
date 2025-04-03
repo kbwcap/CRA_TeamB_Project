@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 
+#include "TestManager.h"
 #include "define.h"
 
 class IShell {
@@ -16,6 +17,8 @@ class IShell {
 
 class ShellTest : public IShell {
  public:
+  ShellTest() {}
+  ShellTest(TestManager *tm) : testManager(tm) {}
   void executeCommand(const std::string &cmdLine);
   std::string getOutput();
   std::string readFromFile(const std::string &file);
@@ -32,4 +35,6 @@ class ShellTest : public IShell {
   bool checkValidLba(std::string &lbaStr);
   bool checkValidValue(std::string &valueStr);
   bool checkValidSize(std::string &valueStr);
+
+  TestManager *testManager;
 };

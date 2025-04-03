@@ -29,9 +29,13 @@ void ShellTest::executeCommand(const std::string &input) {
     if (!excuteFlush(iss)) std::cout << invalid_command;
     return;
   } else {
-    // Test Script 수행
-    // if(!TestManager::runTest)
-    std::cout << invalid_command;
+    int status = testManager->runTest(input);
+    if (status == testManager->NO_TC) {
+      std::cout << invalid_command;
+    } else {
+      std::cout << "status " << status << "\n";
+    }
+    return;
   }
 }
 
