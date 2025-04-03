@@ -25,6 +25,7 @@ class ShellTest : public IShell {
 
  private:
   void printHelp();
+  void runner();
   bool excuteWrite(std::istringstream &iss);
   bool excuteRead(std::istringstream &iss);
   bool excuteFullWrite(std::istringstream &iss);

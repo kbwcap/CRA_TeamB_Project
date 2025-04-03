@@ -33,3 +33,5 @@ const std::string help_command =
 - erase_range StartLBA EndLBA : Erase from between StartLBA and EndLBA.
 - flush : Executes all commands in the buffer.
 )";
+
+const std::string script_file_name = "shell_scripts.txt";
