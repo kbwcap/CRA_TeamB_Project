@@ -92,9 +92,9 @@ bool TestMock_PartialLBAWrite_2() {
   UserCommandQueueMock queue(mockShell);
 
   const std::vector<int> lbaOrder = {4, 0, 3, 1, 2};
-
+  const int loopCount = 30;
   uint32_t seed = static_cast<uint32_t>(time(0));
-  for (int loop = 0; loop < 30; ++loop) {
+  for (int loop = 0; loop < loopCount; ++loop) {
     unsigned int pattern = patternGenerator(seed);
 
     // Write sequence
@@ -235,9 +235,9 @@ bool Test_PartialLBAWrite_2() {
   UserCommandQueue queue(realShell);
 
   const std::vector<int> lbaOrder = {4, 0, 3, 1, 2};
-
+  const int loopCount = 30;
   uint32_t seed = static_cast<uint32_t>(time(0));
-  for (int loop = 0; loop < 30; ++loop) {
+  for (int loop = 0; loop < loopCount; ++loop) {
     unsigned int pattern = patternGenerator(seed);
 
     // Write sequence
