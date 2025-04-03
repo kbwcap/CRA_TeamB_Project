@@ -21,7 +21,7 @@ class CommandFixture : public Test {
     return ret;
   }
 
-  void executeAndExpectTRUE(char cmd, int lba, uint32_t value) {
+  void executeAndExpectTRUE(char cmd, int lba = 0, uint32_t value = 0) {
     std::shared_ptr<ICommand> Command = makeCommand(cmd, lba, value);
     bool ret = ssd.executeCommand(Command);
     EXPECT_TRUE(ret);

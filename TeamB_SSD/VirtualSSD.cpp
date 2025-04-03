@@ -15,9 +15,8 @@ public:
 
 protected:
   VirtualSSD& ssd;
-  int lba;
 
-  ICommand(VirtualSSD& ssd, int lba) : ssd(ssd), lba(lba) {}
+  ICommand(VirtualSSD& ssd) : ssd(ssd) {}
 };
 
 class VirtualSSD {
@@ -112,25 +111,25 @@ private:
 class WriteCommand : public ICommand {
 public:
   WriteCommand(VirtualSSD& ssd, int lba, uint32_t data)
-    : ICommand(ssd, lba), data(data) {
+    : ICommand(ssd), lba(lba), data(data) {
   }
 
   bool execute() override {
     if (ssd.isOutOfRange(lba)) return false;
     ssd.setData(lba, data);
-    ssd.saveStorageToFile();
 
     return true;
   }
 
 private:
+  int lba;
   uint32_t data;
 };
 
 class ReadCommand : public ICommand {
 public:
   ReadCommand(VirtualSSD& ssd, int lba)
-    : ICommand(ssd, lba) {
+    : ICommand(ssd), lba(lba) {
   }
 
   bool execute() override {
@@ -143,5 +142,19 @@ public:
 
     return true;
   }
+private:
+  int lba;
 };
 
+class FlushCommand : public ICommand {
+public:
+  FlushCommand(VirtualSSD& ssd)
+    : ICommand(ssd) {
+  }
+
+  bool execute() override {
+    ssd.saveStorageToFile();
+
+    return true;
+  }
+};
