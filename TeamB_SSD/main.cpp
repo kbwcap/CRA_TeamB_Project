@@ -60,16 +60,22 @@ bool parseArguments(int argc, char* argv[], char& mode, int& num, std::string& h
   mode = argv[1][0];
   num = std::atoi(argv[2]);
 
-  if (mode == 'W') {
+  if (mode == 'W' || mode == 'w') {
     if (argc != 4) {
       std::cerr << "For 'W' mode, provide 2 arguments: <int> <hexadecimal>" << std::endl;
       return false;
     }
     hexStr = argv[3];
   }
-  else if (mode == 'R') {
+  else if (mode == 'R' || mode == 'r') {
     if (argc != 3) {
       std::cerr << "For 'R' mode, provide 1 argument: <int>" << std::endl;
+      return false;
+    }
+  }
+  else if (mode == 'F' || mode == 'f') {
+    if (argc != 1) {
+      std::cerr << "For 'F' mode, require no argument" << std::endl;
       return false;
     }
   }
@@ -81,7 +87,6 @@ bool parseArguments(int argc, char* argv[], char& mode, int& num, std::string& h
   return true;
 }
 
-// Main function to handle the arguments and execute commands
 int main(int argc, char* argv[]) {
 #ifdef _DEBUG
   testing::InitGoogleTest();

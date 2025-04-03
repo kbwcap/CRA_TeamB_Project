@@ -15,6 +15,9 @@ class CommandFixture : public Test {
     else if (cmd == 'R' || cmd == 'r') {
       ret = std::make_shared<ReadCommand>(ssd, lba);
     }
+    else if (cmd == 'F' || cmd == 'f') {
+      ret = std::make_shared<FlushCommand>(ssd);
+    }
     return ret;
   }
 
@@ -51,4 +54,9 @@ TEST_F(CommandFixture, basic_SSD_test_Read_3_OutOfRange) {
 
  TEST_F(CommandFixture, basic_SSD_test_Write_Wrong_lba_index) {
    expectCommandFALSE('W', 102, 0xAAAABBBB);
+ }
+
+ TEST_F(CommandFixture, basic_SSD_test_Flush)
+ {
+   executeAndExpectTRUE('F');
  }
