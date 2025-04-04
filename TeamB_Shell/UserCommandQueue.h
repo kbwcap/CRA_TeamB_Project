@@ -34,6 +34,21 @@ class WriteShellCommand : public ICommand {
   unsigned int data_;
 };
 
+class FullWriteShellCommand : public ICommand {
+ public:
+  FullWriteShellCommand(unsigned int data) : data_(data) {}
+
+  bool execute(IShell& shell) override {
+    shell.executeCommand("fullwrite " + toHexString(data_));
+    return true;
+  }
+
+  unsigned int getData() const { return data_; }
+
+ private:
+  unsigned int data_;
+};
+
 class ReadShellCommand : public ICommand {
  public:
   ReadShellCommand(int lba, const std::string& expectedOutput)
@@ -45,11 +60,22 @@ class ReadShellCommand : public ICommand {
   }
 
   int getLba() const { return lba_; }
-  const std::string& getExpectedOutput() const { return expectedOutput_; }
+  const string& getExpectedOutput() const { return expectedOutput_; }
 
  private:
   int lba_;
-  std::string expectedOutput_;
+  string expectedOutput_;
+};
+
+class FullReadShellCommand : public ICommand {
+ public:
+  FullReadShellCommand() {}
+
+  bool execute(IShell& shell) override {
+    shell.executeCommand(
+        "fullread");  // read compare을 하고자 한다면 readshellcommand를 사용
+    return true;
+  }
 };
 
 class EraseShellCommand : public ICommand {
@@ -88,6 +114,16 @@ class EraseRangeShellCommand : public ICommand {
   int end_;
 };
 
+class FlushShellCommand : public ICommand {
+ public:
+  FlushShellCommand() {}
+
+  bool execute(IShell& shell) override {
+    shell.executeCommand("flush");
+    return true;
+  }
+};
+
 class UserCommandQueue {
  public:
   UserCommandQueue(IShell& shell) : shell(shell) {}
@@ -98,11 +134,23 @@ class UserCommandQueue {
     return true;
   }
 
+  bool enqueueFullWrite(unsigned int data) {
+    if (isQueueFull() && !flush()) return false;
+    commands.push_back(std::make_unique<FullWriteShellCommand>(data));
+    return true;
+  }
+
   bool enqueueRead(int lba, unsigned int expectedResult) {
     if (isQueueFull() && !flush()) return false;
     string expectedOutput =
         "LBA " + std::to_string(lba) + " " + toHexString(expectedResult);
     commands.push_back(std::make_unique<ReadShellCommand>(lba, expectedOutput));
+    return true;
+  }
+  bool enqueueFullRead() {
+    if (isQueueFull() && !flush()) return false;
+    commands.push_back(std::make_unique<FullReadShellCommand>());
+
     return true;
   }
 
@@ -116,6 +164,13 @@ class UserCommandQueue {
     if (isQueueFull() && !flush()) return false;
     commands.push_back(
         std::make_unique<EraseRangeShellCommand>(startLba, endLba));
+    return true;
+  }
+
+  bool enqueueFlush() {
+    if (isQueueFull() && !flush()) return false;
+    commands.push_back(std::make_unique<FlushShellCommand>());
+
     return true;
   }
 
@@ -155,6 +210,12 @@ class UserCommandQueueMock : public UserCommandQueue {
                            toHexString(writeCmd->getData())))
             .Times(1);
 
+      } else if (auto* writeCmd =
+                     dynamic_cast<FullWriteShellCommand*>(cmd.get())) {
+        EXPECT_CALL(mockShell, executeCommand("fullwrite " +
+                                              toHexString(writeCmd->getData())))
+            .Times(1);
+
       } else if (auto* readCmd = dynamic_cast<ReadShellCommand*>(cmd.get())) {
         EXPECT_CALL(mockShell,
                     executeCommand("read " + std::to_string(readCmd->getLba())))
@@ -162,7 +223,9 @@ class UserCommandQueueMock : public UserCommandQueue {
         EXPECT_CALL(mockShell, getOutput())
             .InSequence(outputSeq)
             .WillOnce(::testing::Return(readCmd->getExpectedOutput()));
-
+      } else if (auto* readCmd =
+                     dynamic_cast<FullReadShellCommand*>(cmd.get())) {
+        EXPECT_CALL(mockShell, executeCommand("fullread")).Times(1);
       } else if (auto* eraseCmd = dynamic_cast<EraseShellCommand*>(cmd.get())) {
         EXPECT_CALL(
             mockShell,
@@ -177,6 +240,9 @@ class UserCommandQueueMock : public UserCommandQueue {
                                    std::to_string(rangeCmd->getStart()) + " " +
                                    std::to_string(rangeCmd->getEnd())))
             .Times(1);
+      } else if (auto* flushCmd =
+                     dynamic_cast<FlushShellCommand*>(cmd.get())) {
+        EXPECT_CALL(mockShell, executeCommand("flush")).Times(1);
       }
     }
   }
