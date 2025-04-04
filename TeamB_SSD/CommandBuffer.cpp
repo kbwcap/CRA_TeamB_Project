@@ -216,10 +216,9 @@ bool CommandBuffer::getReadCommandBuffer(int lba, uint32_t& data) {
   if (commandCount == 0) return false;
 
   for (int i = 0; i < commandCount; i++) {
-    if (auto eraseCommand =
-            dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
-      if (eraseCommand->getLBA() == lba) {
-        data = eraseCommand->getData();
+    if (auto writeCommand = dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
+      if (writeCommand->getLBA() == lba) {
+        data = writeCommand->getData();
         return true;
       }
     }
