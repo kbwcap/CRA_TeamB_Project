@@ -118,6 +118,16 @@ void CommandBuffer::removeSameCommmand(std::shared_ptr<ICommand> command) {
       if (writeCommand->getLBA() == receiveCommand->getLBA()) {
         commandBuffer[i] = nullptr;
         updateBufferFile(i, EMPTY, 0, 0);
+        for (i=i+1; i < commandCount; i++) {
+          commandBuffer[i-1] = commandBuffer[i];
+          if (auto writeCommand = dynamic_cast<WriteCommand*>(commandBuffer[i].get()))
+            updateBufferFile(i, WRITE, writeCommand->getLBA(), writeCommand->getData());
+          else if (auto eraseCommand = dynamic_cast<EraseCommand*>(commandBuffer[i].get()))
+            updateBufferFile(i, ERASE, eraseCommand->getLBA(), eraseCommand->getSize());
+        }        
+        commandBuffer[i-1] = nullptr;
+        updateBufferFile(i-2, EMPTY, 0, 0);
+        commandCount--;
         return;
       }
     }
