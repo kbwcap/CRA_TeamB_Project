@@ -170,10 +170,6 @@ bool TestMock_EraseAndWriteAging_4() {
 bool TestMock_FullWriteFullReadFlush_5() {
   NiceMock<MockShell> mockShell;
   UserCommandQueueMock queue(mockShell);
-
-  const int maxLoopCount = 30;
-  const int len = 2;
-  const int maxLba = 99;
   unsigned int pat;
 
   uint32_t seed = static_cast<uint32_t>(time(0));
@@ -356,10 +352,6 @@ bool Test_EraseAndWriteAging_4() {
 bool Test_FullWriteFullReadFlush_5() {
   ShellTest realShell;
   UserCommandQueueMock queue(realShell);
-
-  const int maxLoopCount = 30;
-  const int len = 2;
-  const int maxLba = 99;
   unsigned int pat;
 
   uint32_t seed = static_cast<uint32_t>(time(0));
