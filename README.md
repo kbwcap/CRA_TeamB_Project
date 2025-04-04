@@ -316,13 +316,6 @@ ___
 - `IShell` 인터페이스에 의존 → 고수준 모듈이 저수준 구현에 의존하지 않음.
 
 ---
-### shell_scripts.txt
-  1_FullWriteAndReadCompare
-  2_PartialLBAWrite
-  3_WriteReadAging
-  4_EraseAndWriteAging
-  5_FullWriteFullReadFlush
----
 
 ## 📌 추가 개선 할 내용
 - 명령 로깅 및 결과 저장을 위한 Logger 통합
@@ -349,3 +342,12 @@ ___
 </details>
 
 [🔝 목차로 돌아가기](#toc)
+
+## shell_scripts.txt
+```
+  1_FullWriteAndReadCompare
+  2_PartialLBAWrite
+  3_WriteReadAging
+  4_EraseAndWriteAging
+  5_FullWriteFullReadFlush
+```
