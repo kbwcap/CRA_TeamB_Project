@@ -4,6 +4,7 @@
 const int KB = 1024;
 const int LOG_MAX_SIZE = 10 * KB;
 const int FUNC_MAX_LEN = 30;
+
 const std::string write_done = "[Write] Done\n";
 const std::string read_done = "[Read] ";
 const std::string fullwrite_done = "[FullWrite] Done\n";
