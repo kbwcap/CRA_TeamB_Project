@@ -173,6 +173,39 @@ void CommandBuffer::reloadFromCommandFile() {
   executeCommand();
 }
 
+void CommandBuffer::reloadFromBufferFolderCommandFile() {
+  for (int i = 1; i <= MAX_COMMANDS; ++i) {
+    std::string fileName = "buffer/" + std::to_string(i) + "_empty";
+    std::ifstream file(fileName);
+
+    if (!file.is_open()) continue;
+
+    std::string line;
+    while (std::getline(file, line)) {
+      std::istringstream iss(line);
+      std::string commandType;
+      int lba;
+      uint32_t dataOrSize;
+
+      if (iss >> commandType >> lba >> dataOrSize) {
+        std::shared_ptr<ICommand> command = nullptr;
+        if (commandType == "W") {
+          command = std::make_shared<WriteCommand>(ssd, lba, dataOrSize);
+          // addCommand(command);
+          std::cout << "Loaded WriteCommand: W " << lba << " 0x" << std::hex
+                    << dataOrSize << std::endl;
+        } else if (commandType == "E") {
+          command = std::make_shared<EraseCommand>(ssd, lba, dataOrSize);
+          // addCommand(command);
+          std::cout << "Loaded EraseCommand: E " << lba << " " << dataOrSize
+                    << std::endl;
+        }
+      }
+    }
+    file.close();
+  }
+}
+
 void CommandBuffer::saveCommandToFile() {
   std::ofstream file(bufferFile, std::ios::trunc);
   if (file.is_open()) {

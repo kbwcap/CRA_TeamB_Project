@@ -23,7 +23,7 @@ public:
   void executeCommand();
   void clear();
   void reloadFromCommandFile();
-  void reloadFromCommandFile2();
+  void reloadFromBufferFolderCommandFile();
   void updateBufferFile(int index, const std::string& commandType, int lba, uint32_t dataOrSize);
 
   bool getReadCommandBuffer(int lba, uint32_t& data);
