@@ -6,7 +6,7 @@ bool ReadCommand::execute() {
 
   std::stringstream ss;
   ss << "LBA " << lba << " 0x" << std::setfill('0') << std::setw(8)
-    << std::hex << std::uppercase << ssd.getData(lba);
+    << std::hex << std::uppercase << ssd.readData(lba);
 
   return ssd.saveOutputToFile(ss.str());
 }

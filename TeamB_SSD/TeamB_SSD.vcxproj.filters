@@ -31,12 +31,6 @@
     <ClCompile Include="SSD_Test.cpp">
       <Filter>리소스 파일\test</Filter>
     </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gtest\gtest-all.cc">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gmock\gmock-all.cc">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="WriteCommand.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>

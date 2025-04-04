@@ -7,23 +7,23 @@ EraseCommand::EraseCommand(VirtualSSD& ssd, int lba, int size)
 
 bool EraseCommand::execute() {
   if (ssd.isOutOfRange(lba)) {
-    ssd.saveOutputToFile(ERROR);
+    ssd.saveOutputToFile(MSG_ERROR);
     return false;
   }
 
   if (size <= 0) {
-    ssd.saveOutputToFile(ERROR_SIZE);
+    ssd.saveOutputToFile(MSG_ERROR_SIZE);
     return false;
   }
 
   if (size > 10) {
-    ssd.saveOutputToFile(ERROR_SIZE);
+    ssd.saveOutputToFile(MSG_ERROR_SIZE);
     size = 10;
   }
 
   for (int startLBA = lba; startLBA < lba + size; ++startLBA) {
     if (ssd.isOutOfRange(startLBA)) {
-      ssd.saveOutputToFile(ERROR_OUT_OF_RANGE);
+      ssd.saveOutputToFile(MSG_ERROR_OUT_OF_RANGE);
       return false;
     }
     ssd.setData(startLBA, 0);

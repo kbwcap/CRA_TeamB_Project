@@ -1,8 +1,8 @@
 #pragma once
 
-static constexpr const char* ERROR = "ERROR";
-static constexpr const char* ERROR_SIZE = "ERROR_SIZE";
-static constexpr const char* ERROR_OUT_OF_RANGE = "ERROR_OUT_OF_RANGE";
+const std::string MSG_ERROR = "ERROR";
+const std::string MSG_ERROR_SIZE = "ERROR_SIZE";
+const std::string MSG_ERROR_OUT_OF_RANGE = "ERROR_OUT_OF_RANGE";
 
-static constexpr const int MAX_RANGE_NUM = 100;
-static constexpr const int DEFAULT_VALUE = 0x00000000;
+const int MAX_RANGE_NUM = 100;
+const int DEFAULT_VALUE = 0x00000000;

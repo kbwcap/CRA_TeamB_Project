@@ -25,7 +25,9 @@ public:
   void reloadFromCommandFile2();
   void updateBufferFile(int index, const std::string& commandType, int lba, uint32_t dataOrSize);
 
-private:
+  bool getReadCommandBuffer(int lba, uint32_t& data);
+
+ private:
   void renameOrCreateFile(const std::string& oldFileName, const std::string& newFileName);
   void createFile(const std::string& newFileName);
   void initializeBufferFolder();
