@@ -48,6 +48,11 @@ const std::string help_command =
 - erase LBA Size : Erase from LBA to Size.
 - erase_range StartLBA EndLBA : Erase from between StartLBA and EndLBA.
 - flush : Executes all commands in the buffer.
+- shell_scripts.txt : Run all test.
+- 1_FullWriteAndReadCompare : Run 1st test.
+- 2_PartialLBAWrite : Run 2nd test.
+- 3_WriteReadAging : Run 3rd test.
+- 4_EraseAndWriteAging : Run 4th test.
 )";
 
 const std::string script_file_name = "shell_scripts.txt";
