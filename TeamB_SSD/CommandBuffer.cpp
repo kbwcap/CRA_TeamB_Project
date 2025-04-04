@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 #include "VirtualSSD.h"
 
@@ -48,16 +49,16 @@ void CommandBuffer::updateBufferFile(int index, const std::string& commandType,
       std::string oldFileName = entry.path().string();
       std::string newFileName = ss.str();
 
-      if (commandType == "empty") {
-        newFileName += "empty";
+      if (commandType == EMPTY) {
+        newFileName += EMPTY;
         renameOrCreateFile(oldFileName, newFileName);
         fileFound = true;
-      } else if (commandType == "W") {
+      } else if (commandType == WRITE) {
         newFileName +=
             "W_" + std::to_string(lba) + "_" + std::to_string(dataOrSize);
         renameOrCreateFile(oldFileName, newFileName);
         fileFound = true;
-      } else if (commandType == "E") {
+      } else if (commandType == ERASE) {
         newFileName +=
             "E_" + std::to_string(lba) + "_" + std::to_string(dataOrSize);
         renameOrCreateFile(oldFileName, newFileName);
@@ -68,12 +69,12 @@ void CommandBuffer::updateBufferFile(int index, const std::string& commandType,
 
   if (!fileFound) {
     std::string newFileName = ss.str();
-    if (commandType == "empty") {
-      newFileName += "empty";
-    } else if (commandType == "W") {
+    if (commandType == EMPTY) {
+      newFileName += EMPTY;
+    } else if (commandType == WRITE) {
       newFileName +=
           "W_" + std::to_string(lba) + "_" + std::to_string(dataOrSize);
-    } else if (commandType == "E") {
+    } else if (commandType == ERASE) {
       newFileName +=
           "E_" + std::to_string(lba) + "_" + std::to_string(dataOrSize);
     }
@@ -111,12 +112,128 @@ void CommandBuffer::createFile(const std::string& newFileName) {
   }
 }
 
+// 최소값 함수
+template <typename T>
+T my_min(const T& a, const T& b) {
+  return (a < b) ? a : b;
+}
+
+// 최대값 함수
+template <typename T>
+T my_max(const T& a, const T& b) {
+  return (a > b) ? a : b;
+}
+
+
+std::shared_ptr<ICommand> CommandBuffer::setIgnoreMergeCommmand(
+    std::shared_ptr<ICommand> command) {
+  // Case 1: WriteCommand
+  if (auto rWriteCommand = dynamic_cast<WriteCommand*>(command.get())) {
+    for (int i = 0; i < commandCount; ++i) {
+      if (auto w = dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
+        if (w->getLBA() == rWriteCommand->getLBA()) {
+          removeAtBuffer(i);
+          updateCommandBuffer();
+          return nullptr;
+        }
+      }
+    }
+  }
+
+  // Case 2: EraseCommand
+  else if (auto rEraseCommand = dynamic_cast<EraseCommand*>(command.get())) {
+    bool merged = false;
+    for (int i = 0; i < commandCount; ++i) {
+      if (auto w = dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
+        // erase가 write 범위를 포함하면 write 제거
+        if (isEraseInRange(w->getLBA(), 1, rEraseCommand->getLBA(), rEraseCommand->getSize())){
+          removeAtBuffer(i);
+        }
+      } 
+      else if (auto e = dynamic_cast<EraseCommand*>(commandBuffer[i].get())) {
+        if (isEraseInRange(e->getLBA(), e->getSize(), rEraseCommand->getLBA(), rEraseCommand->getSize())) {
+          removeAtBuffer(i);
+          continue;
+        }
+        else if(canMerge(rEraseCommand->getLBA(), rEraseCommand->getSize(), e->getLBA(), e->getSize())) {
+          removeAtBuffer(i);
+          int mergedLBA = my_min(rEraseCommand->getLBA(), e->getLBA());
+          int mergedEnd =
+              my_max(rEraseCommand->getLBA() + rEraseCommand->getSize() - 1,
+                       e->getLBA() + e->getSize() - 1);
+          int mergedSize = mergedEnd - mergedLBA + 1;
+
+          command = std::make_shared<EraseCommand>(ssd, mergedLBA, mergedSize);
+          merged = true;
+        }
+      }
+    }
+
+    updateCommandBuffer();
+    return merged ? command : nullptr;
+  }
+
+  return nullptr;
+}
+
+void CommandBuffer::updateCommandBuffer() {
+  int writeLBA = 0;
+
+  for (int readLBA = 0; readLBA < commandCount; ++readLBA) {
+    if (commandBuffer[readLBA] != nullptr) {
+      if (writeLBA != readLBA) {
+        commandBuffer[writeLBA] = commandBuffer[readLBA];
+      }
+      ++writeLBA;
+    }
+  }
+
+  for (int i = writeLBA; i < commandCount; ++i) {
+    commandBuffer[i] = nullptr;
+  }
+  commandCount = writeLBA;
+}
+
+void CommandBuffer::removeAtBuffer(int lba) {
+  commandBuffer[lba] = nullptr;
+  updateBufferFile(lba, EMPTY, 0, 0);
+}
+
+bool CommandBuffer::isEraseInRange(int innerId, int innerSize, int outerId,
+                                 int outerSize) {
+  int innerStart = innerId;
+  int innerEnd = innerId + innerSize - 1;
+
+  int outerStart = outerId;
+  int outerEnd = outerId + outerSize - 1;
+
+  return outerStart <= innerStart && innerEnd <= outerEnd;
+}
+
+bool CommandBuffer::canMerge(int id1, int size1, int id2, int size2) {
+  int start1 = id1;
+  int end1 = id1 + size1 - 1;
+  int start2 = id2;
+  int end2 = id2 + size2 - 1;
+
+  // 겹치거나 붙어 있는 경우
+  return !(end1 < start2 - 1 || end2 < start1 - 1);
+}
+
 void CommandBuffer::addCommand(std::shared_ptr<ICommand> command) {
   if (commandCount >= MAX_COMMANDS) {
     executeCommand();
+    ssd.saveStorageToFile();
     clear();
   }
-  commandBuffer[commandCount++] = command;
+
+  // Ignore & Merge Command - Write, Erase
+  auto mergedCommand = setIgnoreMergeCommmand(command);
+  if (mergedCommand == nullptr)
+    commandBuffer[commandCount++] = command;
+  else {
+    commandBuffer[commandCount++] = mergedCommand;
+  }
 }
 
 void CommandBuffer::reloadFromCommandFile() {
@@ -133,10 +250,10 @@ void CommandBuffer::reloadFromCommandFile() {
 
     if (iss >> commandType >> lba >> dataOrSize) {
       std::shared_ptr<ICommand> command = nullptr;
-      if (commandType == "W") {
+      if (commandType == WRITE) {
         command = std::make_shared<WriteCommand>(ssd, lba, dataOrSize);
         addCommand(command);
-      } else if (commandType == "E") {
+      } else if (commandType == ERASE) {
         command = std::make_shared<EraseCommand>(ssd, lba, dataOrSize);
         addCommand(command);
       }
@@ -147,7 +264,7 @@ void CommandBuffer::reloadFromCommandFile() {
   executeCommand();
 }
 
-void CommandBuffer::reloadFromCommandFile2() {
+void CommandBuffer::reloadFromBufferFolderCommandFile() {
   for (int i = 1; i <= MAX_COMMANDS; ++i) {
     std::string fileName = "buffer/" + std::to_string(i) + "_empty";
     std::ifstream file(fileName);
@@ -189,13 +306,13 @@ void CommandBuffer::saveCommandToFile() {
               dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
         ss << "W " << writeCommand->getLBA() << " " << writeCommand->getData()
            << std::endl;
-        updateBufferFile(i, "W", writeCommand->getLBA(),
+        updateBufferFile(i, WRITE, writeCommand->getLBA(),
                          writeCommand->getData());
       } else if (auto eraseCommand =
                      dynamic_cast<EraseCommand*>(commandBuffer[i].get())) {
         ss << "E " << eraseCommand->getLBA() << " " << eraseCommand->getSize()
            << std::endl;
-        updateBufferFile(i, "E", eraseCommand->getLBA(),
+        updateBufferFile(i, ERASE, eraseCommand->getLBA(),
                          eraseCommand->getSize());
       }
       file << ss.str();
@@ -208,7 +325,7 @@ void CommandBuffer::clear() {
   commandCount = 0;
   for (int i = 0; i < MAX_COMMANDS; ++i) {
     commandBuffer[i] = nullptr;
-    updateBufferFile(i, "empty", 0, 0);
+    updateBufferFile(i, EMPTY, 0, 0);
   }
   clearCommandFile();
 }
@@ -233,14 +350,14 @@ bool CommandBuffer::getReadCommandBuffer(int lba, uint32_t& data) {
   if (commandCount == 0) return false;
 
   for (int i = 0; i < commandCount; i++) {
-    // WriteCommand
-    if (auto eraseCommand =
-            dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
-      if (eraseCommand->getLBA() == lba) {
-        data = eraseCommand->getData();
+    if (auto writeCommand = dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
+      if (writeCommand->getLBA() == lba) {
+        data = writeCommand->getData();
         return true;
       }
     }
   }
   return false;
 }
+
+int CommandBuffer::getBufferSize() const { return commandCount; }

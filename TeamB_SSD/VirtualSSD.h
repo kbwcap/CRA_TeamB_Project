@@ -14,6 +14,9 @@ class VirtualSSD {
 public:
   VirtualSSD(const std::string& nand = "ssd_nand.txt",
              const std::string& out = "ssd_output.txt");
+ //~VirtualSSD() { 
+ //    if (commandBuffer.getBufferSize() > MAX_COMMANDS) saveStorageToFile();
+ //}
 
   bool executeCommand(std::shared_ptr<ICommand> command);
   void setData(int lba, uint32_t data);
