@@ -11,3 +11,4 @@ const std::string EMPTY = "empty";
 
 const int MAX_RANGE_NUM = 100;
 const int DEFAULT_VALUE = 0x00000000;
+const int MAX_COMMANDS = 5;

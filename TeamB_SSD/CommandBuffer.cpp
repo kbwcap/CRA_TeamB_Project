@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 #include "VirtualSSD.h"
 
@@ -111,38 +112,128 @@ void CommandBuffer::createFile(const std::string& newFileName) {
   }
 }
 
-void CommandBuffer::removeSameCommmand(std::shared_ptr<ICommand> command) {
-  auto receiveCommand = dynamic_cast<WriteCommand*>(command.get());
-  for (int i = 0; i < commandCount; i++) {
-    if (auto writeCommand = dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
-      if (writeCommand->getLBA() == receiveCommand->getLBA()) {
-        commandBuffer[i] = nullptr;
-        updateBufferFile(i, EMPTY, 0, 0);
-        for (i=i+1; i < commandCount; i++) {
-          commandBuffer[i-1] = commandBuffer[i];
-          if (auto writeCommand = dynamic_cast<WriteCommand*>(commandBuffer[i].get()))
-            updateBufferFile(i, WRITE, writeCommand->getLBA(), writeCommand->getData());
-          else if (auto eraseCommand = dynamic_cast<EraseCommand*>(commandBuffer[i].get()))
-            updateBufferFile(i, ERASE, eraseCommand->getLBA(), eraseCommand->getSize());
-        }        
-        commandBuffer[i-1] = nullptr;
-        updateBufferFile(i-2, EMPTY, 0, 0);
-        commandCount--;
-        return;
+// 최소값 함수
+template <typename T>
+T my_min(const T& a, const T& b) {
+  return (a < b) ? a : b;
+}
+
+// 최대값 함수
+template <typename T>
+T my_max(const T& a, const T& b) {
+  return (a > b) ? a : b;
+}
+
+
+std::shared_ptr<ICommand> CommandBuffer::setIgnoreMergeCommmand(
+    std::shared_ptr<ICommand> command) {
+  // Case 1: WriteCommand
+  if (auto rWriteCommand = dynamic_cast<WriteCommand*>(command.get())) {
+    for (int i = 0; i < commandCount; ++i) {
+      if (auto w = dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
+        if (w->getLBA() == rWriteCommand->getLBA()) {
+          removeAtBuffer(i);
+          updateCommandBuffer();
+          return nullptr;
+        }
       }
     }
   }
+
+  // Case 2: EraseCommand
+  else if (auto rEraseCommand = dynamic_cast<EraseCommand*>(command.get())) {
+    bool merged = false;
+    for (int i = 0; i < commandCount; ++i) {
+      if (auto w = dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
+        // erase가 write 범위를 포함하면 write 제거
+        if (isEraseInRange(w->getLBA(), 1, rEraseCommand->getLBA(), rEraseCommand->getSize())){
+          removeAtBuffer(i);
+        }
+      } 
+      else if (auto e = dynamic_cast<EraseCommand*>(commandBuffer[i].get())) {
+        if (isEraseInRange(e->getLBA(), e->getSize(), rEraseCommand->getLBA(), rEraseCommand->getSize())) {
+          removeAtBuffer(i);
+          continue;
+        }
+        else if(canMerge(rEraseCommand->getLBA(), rEraseCommand->getSize(), e->getLBA(), e->getSize())) {
+          removeAtBuffer(i);
+          int mergedLBA = my_min(rEraseCommand->getLBA(), e->getLBA());
+          int mergedEnd =
+              my_max(rEraseCommand->getLBA() + rEraseCommand->getSize() - 1,
+                       e->getLBA() + e->getSize() - 1);
+          int mergedSize = mergedEnd - mergedLBA + 1;
+
+          command = std::make_shared<EraseCommand>(ssd, mergedLBA, mergedSize);
+          merged = true;
+        }
+      }
+    }
+
+    updateCommandBuffer();
+    return merged ? command : nullptr;
+  }
+
+  return nullptr;
+}
+
+void CommandBuffer::updateCommandBuffer() {
+  int writeLBA = 0;
+
+  for (int readLBA = 0; readLBA < commandCount; ++readLBA) {
+    if (commandBuffer[readLBA] != nullptr) {
+      if (writeLBA != readLBA) {
+        commandBuffer[writeLBA] = commandBuffer[readLBA];
+      }
+      ++writeLBA;
+    }
+  }
+
+  for (int i = writeLBA; i < commandCount; ++i) {
+    commandBuffer[i] = nullptr;
+  }
+  commandCount = writeLBA;
+}
+
+void CommandBuffer::removeAtBuffer(int lba) {
+  commandBuffer[lba] = nullptr;
+  updateBufferFile(lba, EMPTY, 0, 0);
+}
+
+bool CommandBuffer::isEraseInRange(int innerId, int innerSize, int outerId,
+                                 int outerSize) {
+  int innerStart = innerId;
+  int innerEnd = innerId + innerSize - 1;
+
+  int outerStart = outerId;
+  int outerEnd = outerId + outerSize - 1;
+
+  return outerStart <= innerStart && innerEnd <= outerEnd;
+}
+
+bool CommandBuffer::canMerge(int id1, int size1, int id2, int size2) {
+  int start1 = id1;
+  int end1 = id1 + size1 - 1;
+  int start2 = id2;
+  int end2 = id2 + size2 - 1;
+
+  // 겹치거나 붙어 있는 경우
+  return !(end1 < start2 - 1 || end2 < start1 - 1);
 }
 
 void CommandBuffer::addCommand(std::shared_ptr<ICommand> command) {
   if (commandCount >= MAX_COMMANDS) {
     executeCommand();
+    ssd.saveStorageToFile();
     clear();
   }
-  // Ignore Command
-  removeSameCommmand(command);
 
-  commandBuffer[commandCount++] = command;
+  // Ignore & Merge Command - Write, Erase
+  auto mergedCommand = setIgnoreMergeCommmand(command);
+  if (mergedCommand == nullptr)
+    commandBuffer[commandCount++] = command;
+  else {
+    commandBuffer[commandCount++] = mergedCommand;
+  }
 }
 
 void CommandBuffer::reloadFromCommandFile() {
@@ -268,3 +359,5 @@ bool CommandBuffer::getReadCommandBuffer(int lba, uint32_t& data) {
   }
   return false;
 }
+
+int CommandBuffer::getBufferSize() const { return commandCount; }
