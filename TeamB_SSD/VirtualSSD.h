@@ -28,6 +28,11 @@ public:
   void clearCommandBuff() {
     commandBuffer.clear();
   }
+
+  void excuteAndClearCommandBuff() {
+    commandBuffer.executeCommand();
+    commandBuffer.clear();
+  }
 private:
   uint32_t storage[MAX_RANGE_NUM];
   const std::string nand_file;

@@ -19,6 +19,7 @@ public:
   ~CommandBuffer();
 
   void addCommand(std::shared_ptr<ICommand> command);
+  void executeCommand();
   void clear();
   void reloadFromCommandFile();
   void reloadFromCommandFile2();
@@ -30,7 +31,7 @@ private:
   void initializeBufferFolder();
   void saveCommandToFile();
   void clearCommandFile();
-  void executeCommand();
+
 
   std::shared_ptr<ICommand> commandBuffer[MAX_COMMANDS] = {};
   int commandCount;
