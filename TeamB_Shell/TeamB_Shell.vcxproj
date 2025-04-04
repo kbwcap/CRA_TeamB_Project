@@ -135,6 +135,11 @@
     <ClCompile Include="ShellTest.cpp" />
     <ClCompile Include="ShellTest_Test.cpp" />
     <ClCompile Include="TestManager.cpp" />
+    <ClCompile Include="test_suite\Test_EraseAndWriteAging_4.cpp" />
+    <ClCompile Include="test_suite\Test_FullWriteAndReadCompare_1.cpp" />
+    <ClCompile Include="test_suite\Test_FullWriteFullReadFlush_5.cpp" />
+    <ClCompile Include="test_suite\Test_PartialLBAWrite_2.cpp" />
+    <ClCompile Include="test_suite\Test_WriteReadAging_3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -143,6 +148,7 @@
     <ClInclude Include="define.h" />
     <ClInclude Include="MockShell.h" />
     <ClInclude Include="logger.h" />
+    <ClInclude Include="RegisterHelper.h" />
     <ClInclude Include="ShellTest.h" />
     <ClInclude Include="TestManager.h" />
     <ClInclude Include="UserCommandQueue.h" />
