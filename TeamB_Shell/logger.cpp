@@ -14,8 +14,7 @@ void Logger::print(std::string funcName, std::string message) {
   std::ostringstream funcStream;
   funcStream << std::left << std::setw(FUNC_MAX_LEN) << funcName;
 
-  fs::path logPath = "latest.log";
-  std::ofstream logFile(logPath, std::ios::app);
+  std::ofstream logFile("latest.log", std::ios::app);
   if (logFile) {
     logFile << timestamp << " " << funcStream.str() << " : " << message
             << std::endl;
@@ -27,11 +26,11 @@ void Logger::print(std::string funcName, std::string message) {
 }
 
 void Logger::spiltLogFile() {
-  fs::path logPath = "latest.log";
+  fs::path fileName = "latest.log";
 
-  if (!fs::exists(logPath)) return;
+  if (!fs::exists(fileName)) return;
 
-  auto fileSize = fs::file_size(logPath);
+  auto fileSize = fs::file_size(fileName);
 
   if (fileSize <= LOG_MAX_SIZE) return;
 
@@ -41,9 +40,9 @@ void Logger::spiltLogFile() {
 
   std::ostringstream oss;
   oss << "until_" << std::put_time(&localTime, "%y%m%d_%Hh_%Mm_%Ss") << ".log";
-  fs::path newLogPath = oss.str();
+  fs::path newFileName = oss.str();
 
-  fs::rename(logPath, newLogPath);
+  fs::rename(fileName, newFileName);
 }
 
 void Logger::compressOldLogFiles() {
@@ -66,10 +65,10 @@ void Logger::compressOldLogFiles() {
             });
 
   for (int i = 1; i < logFiles.size(); i++) {
-    fs::path oldFileName = logFiles[i].path();
-    fs::path newFileName = oldFileName;
+    fs::path fileName = logFiles[i].path();
+    fs::path newFileName = fileName;
     newFileName.replace_extension(".zip");
 
-    fs::rename(oldFileName, newFileName);
+    fs::rename(fileName, newFileName);
   }
 }
