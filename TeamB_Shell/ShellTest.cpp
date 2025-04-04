@@ -35,8 +35,10 @@ void ShellTest::executeCommand(const std::string &input) {
     int status = testManager->runTest(input);
     if (status == testManager->NO_TC)
       isValidCommand = false;
-    else
-      std::cout << "status " << status << "\n";
+    else if (status == testManager->PASS)
+      std::cout << "PASS" << std::endl;
+    else if (status == testManager->FAIL)
+      std::cout << "FAIL" << std::endl;
   }
 
   if (!isValidCommand) std::cout << invalid_command;
