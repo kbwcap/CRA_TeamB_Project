@@ -32,16 +32,46 @@ void ShellTest::executeCommand(const std::string &input) {
   else if (command == script_file_name)
     runner();
   else {
-    int status = testManager->runTest(input);
-    if (status == testManager->NO_TC)
+    int status = TestManager::instance().runTest(input);
+    if (status == TestManager::instance().NO_TC)
       isValidCommand = false;
-    else if (status == testManager->PASS)
+    else if (status == TestManager::instance().PASS)
       std::cout << "PASS" << std::endl;
-    else if (status == testManager->FAIL)
+    else if (status == TestManager::instance().FAIL)
       std::cout << "FAIL" << std::endl;
   }
 
   if (!isValidCommand) std::cout << invalid_command;
+}
+
+void ShellTest::printHelp() { std::cout << help_command << std::endl; }
+
+void ShellTest::runner() {
+  std::ifstream file(script_file_name);
+  if (!file.is_open()) {
+    throw std::ios_base::failure("Failed to open file: " + script_file_name);
+  }
+
+  std::vector<std::string> testScripts;
+  std::string testcase;
+  while (std::getline(file, testcase)) {
+    testScripts.push_back(testcase);
+  }
+  file.close();
+
+  int status;
+  for (const auto &testcase : testScripts) {
+    status = TestManager::instance().runTest(testcase);
+    std::cout << testcase << "  ----  Run...";
+    if (status == TestManager::instance().FAIL) {
+      std::cout << "FAIL!\n";
+      return;
+    } else if (status == TestManager::instance().NO_TC) {
+      return;
+    }
+    std::cout << "PASS\n";
+  }
+  return;
 }
 
 bool ShellTest::executeWrite(std::istringstream &iss) {
@@ -76,8 +106,6 @@ bool ShellTest::executeRead(std::istringstream &iss) {
   logger.print(func_execute_read, status_finish);
   return true;
 }
-
-void ShellTest::printHelp() { std::cout << help_command << std::endl; }
 
 bool ShellTest::executeFullWrite(std::istringstream &iss) {
   logger.print(func_execute_fullwrite, status_start);
@@ -166,35 +194,6 @@ bool ShellTest::executeFlush(std::istringstream &iss) {
 
   logger.print(func_execute_flush, status_finish);
   return true;
-}
-
-void ShellTest::runner() {
-  std::ifstream file(script_file_name);
-  if (!file.is_open()) {
-    throw std::ios_base::failure("Failed to open file: " + script_file_name);
-  }
-
-  std::vector<std::string> testScripts;
-  std::string testcase;
-  while (std::getline(file, testcase)) {
-    std::cout << testcase;
-    testScripts.push_back(testcase);
-  }
-  file.close();
-
-  int status;
-  for (const auto &testcase : testScripts) {
-    status = testManager->runTest(testcase);
-    std::cout << testcase << "  ----  Run...";
-    if (status == testManager->FAIL) {
-      std::cout << "FAIL!\n";
-      return;
-    } else if (status == testManager->NO_TC) {
-      return;
-    }
-    std::cout << "PASS\n";
-  }
-  return;
 }
 
 std::string ShellTest::getOutput() { return readFromFile(output_file_name); }

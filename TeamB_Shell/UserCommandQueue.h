@@ -136,6 +136,7 @@ class UserCommandQueue {
 
   bool enqueueFullWrite(unsigned int data) {
     if (isQueueFull() && !flush()) return false;
+
     commands.push_back(std::make_unique<FullWriteShellCommand>(data));
     return true;
   }
@@ -240,8 +241,7 @@ class UserCommandQueueMock : public UserCommandQueue {
                                    std::to_string(rangeCmd->getStart()) + " " +
                                    std::to_string(rangeCmd->getEnd())))
             .Times(1);
-      } else if (auto* flushCmd =
-                     dynamic_cast<FlushShellCommand*>(cmd.get())) {
+      } else if (auto* flushCmd = dynamic_cast<FlushShellCommand*>(cmd.get())) {
         EXPECT_CALL(mockShell, executeCommand("flush")).Times(1);
       }
     }
