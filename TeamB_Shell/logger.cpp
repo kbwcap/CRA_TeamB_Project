@@ -1,52 +1,75 @@
 #include "logger.h"
 
-#include <filesystem>
+namespace fs = std::filesystem;
 
 void Logger::print(std::string funcName, std::string message) {
-  {
-    // 현재 날짜 및 시간 구하기
-    std::time_t now = std::time(nullptr);
-    std::tm localTime;
-    localtime_s(&localTime, &now);
+  std::time_t now = std::time(nullptr);
+  std::tm localTime;
+  localtime_s(&localTime, &now);
 
-    char timeBuffer[32];
-    std::strftime(timeBuffer, sizeof(timeBuffer), "[%y.%m.%d %H:%M:%S]",
-                  &localTime);
+  std::ostringstream timeStream;
+  timeStream << "[" << std::put_time(&localTime, "%y.%m.%d %H:%M:%S") << "]";
+  std::string timestamp = timeStream.str();
 
-    std::ofstream logFile("latest.log", std::ios::app);
-    if (logFile.is_open()) {
-      logFile << timeBuffer << " " << funcName.append(30 - funcName.size(), ' ')
-              << " : " << message << std::endl;
-      logFile.close();
-      
-      manageLog();
-    }
+  std::ostringstream funcStream;
+  funcStream << std::left << std::setw(FUNC_MAX_LEN) << funcName;
+
+  fs::path logPath = "latest.log";
+  std::ofstream logFile(logPath, std::ios::app);
+  if (logFile) {
+    logFile << timestamp << " " << funcStream.str() << " : " << message
+            << std::endl;
+    logFile.close();
+
+    spiltLogFile();
+    compressOldLogFiles();
   }
 }
 
-void Logger::manageLog() {
-  std::ifstream logFile("latest.log", std::ios::binary | std::ios::ate);
-  if (!logFile.is_open()) {
-    return;
+void Logger::spiltLogFile() {
+  fs::path logPath = "latest.log";
+
+  if (!fs::exists(logPath)) return;
+
+  auto fileSize = fs::file_size(logPath);
+
+  if (fileSize <= LOG_MAX_SIZE) return;
+
+  std::time_t now = std::time(nullptr);
+  std::tm localTime;
+  localtime_s(&localTime, &now);
+
+  std::ostringstream oss;
+  oss << "until_" << std::put_time(&localTime, "%y%m%d_%Hh_%Mm_%Ss") << ".log";
+  fs::path newLogPath = oss.str();
+
+  fs::rename(logPath, newLogPath);
+}
+
+void Logger::compressOldLogFiles() {
+  std::vector<fs::directory_entry> logFiles;
+
+  for (const auto& entry : fs::directory_iterator(".")) {
+    if (entry.is_regular_file()) {
+      std::string name = entry.path().filename().string();
+      if (name.starts_with("until_") && name.ends_with(".log")) {
+        logFiles.push_back(entry);
+      }
+    }
   }
 
-  // 파일 크기(바이트 단위) 가져오기
-  std::streamsize fileSize = logFile.tellg();
-  logFile.close();
+  if (logFiles.size() <= 1) return;
 
-  if (fileSize > 10 * 1024) {
-    // 현재 날짜 및 시간 구하기
-    std::time_t now = std::time(nullptr);
-    std::tm localTime;
-    localtime_s(&localTime, &now);
+  std::sort(logFiles.begin(), logFiles.end(),
+            [](const fs::directory_entry& a, const fs::directory_entry& b) {
+              return fs::last_write_time(a) > fs::last_write_time(b);
+            });
 
-    // 새로운 파일 이름 생성: until_yyMMdd_HHh_MMm_SSs.log
-    char newFileName[64];
-    std::strftime(newFileName, sizeof(newFileName),
-                  "until_%y%m%d_%Hh_%Mm_%Ss.log", &localTime);
+  for (int i = 1; i < logFiles.size(); i++) {
+    fs::path oldFileName = logFiles[i].path();
+    fs::path newFileName = oldFileName;
+    newFileName.replace_extension(".zip");
 
-    if (std::rename("latest.log", newFileName) != 0) {
-      std::perror("Error renaming log file");
-    }
+    fs::rename(oldFileName, newFileName);
   }
 }
