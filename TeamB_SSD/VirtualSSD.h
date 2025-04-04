@@ -17,8 +17,8 @@ public:
 
   bool executeCommand(std::shared_ptr<ICommand> command);
   void setData(int lba, uint32_t data);
-  uint32_t getData(int lba) const;
-
+  //uint32_t getData(int lba) const;
+  uint32_t readData(int lba);
   bool saveStorageToFile();
   void loadStorageFromFile();
 
@@ -39,4 +39,6 @@ private:
   const std::string out_file;
 
   CommandBuffer commandBuffer;
+
+  uint32_t getData(int lba) const;
 };

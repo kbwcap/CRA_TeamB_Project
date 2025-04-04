@@ -57,7 +57,7 @@ TEST_F(CommandFixture, basic_SSD_test_Read_3_TRUE) {
 }
 
 TEST_F(CommandFixture, basic_SSD_test_Read_3_OutOfRange) {
-  expectCommandFALSE('R', 103, 0x00000000);
+  expectCommandFALSE('R', 103, DEFAULT_VALUE);
 }
 
 TEST_F(CommandFixture, basic_SSD_test_Write_Wrong_lba_index) {
@@ -81,3 +81,7 @@ TEST_F(CommandFixture, basic_SSD_test_Erase_100_10) {
 TEST_F(CommandFixture, basic_SSD_test_Erase_0_20) {
   executeAndExpectTRUE('E', 0, 20);
 }
+
+ TEST_F(CommandFixture, basic_SSD_testR_Read_Buffer_102) {
+  executeAndExpectTRUE('R', 3, 0xAAAABBBB);
+ }

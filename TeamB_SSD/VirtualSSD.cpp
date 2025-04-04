@@ -26,6 +26,15 @@ void VirtualSSD::setData(int lba, uint32_t data) {
   storage[lba] = data;
 }
 
+uint32_t VirtualSSD::readData(int lba) {
+  // buffer에 read 하려는 값이 있는 경우 buffer에서 가지고 온다.
+  uint32_t data = DEFAULT_VALUE;
+  if (commandBuffer.getReadCommandBuffer(lba, data)) {
+    return data;
+  }
+  return getData(lba);
+}
+
 uint32_t VirtualSSD::getData(int lba) const {
   return storage[lba];
 }
@@ -81,7 +90,7 @@ bool VirtualSSD::saveOutputToFile(std::string outData) {
 
 bool VirtualSSD::isOutOfRange(int lba) {
   if (lba < 0 || lba >= MAX_RANGE_NUM) {
-    saveOutputToFile(ERROR);
+    saveOutputToFile(MSG_ERROR);
     return true;
   }
   return false;
