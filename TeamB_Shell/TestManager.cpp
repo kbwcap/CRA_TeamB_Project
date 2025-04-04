@@ -167,6 +167,20 @@ bool TestMock_EraseAndWriteAging_4() {
   return queue.flush();
 }
 
+bool TestMock_FullWriteFullReadFlush_5() {
+  NiceMock<MockShell> mockShell;
+  UserCommandQueueMock queue(mockShell);
+  unsigned int pat;
+
+  uint32_t seed = static_cast<uint32_t>(time(0));
+  pat = patternGenerator(seed);
+  if (!queue.enqueueFullWrite(pat)) return false;
+  if (!queue.enqueueFullRead()) return false;
+  if (!queue.enqueueFlush()) return false;
+  queue.expectAll(mockShell);
+  return queue.flush();
+}
+
 class TestScriptFixture : public Test {
  public:
   void registerAllTestcases() {
@@ -178,6 +192,8 @@ class TestScriptFixture : public Test {
                              TestMock_WriteReadAging_3);
     testManager.registerTest("4_EraseAndWriteAging_Mock",
                              TestMock_EraseAndWriteAging_4);
+    testManager.registerTest("5_FullWriteFullReadFlush_Mock",
+                             TestMock_FullWriteFullReadFlush_5);
   }
 
   void runTestcase(const std::string& testName) {
@@ -310,7 +326,7 @@ bool Test_WriteReadAging_3() {
 
 bool Test_EraseAndWriteAging_4() {
   ShellTest realShell;
-  UserCommandQueueMock queue(realShell);
+  UserCommandQueue queue(realShell);
 
   const int maxLoopCount = 30;
   const int len = 2;
@@ -329,6 +345,20 @@ bool Test_EraseAndWriteAging_4() {
       if (!queue.enqueueEraseRange(startLba, startLba + len)) return false;
     }
   }
+
+  return queue.flush();
+}
+
+bool Test_FullWriteFullReadFlush_5() {
+  ShellTest realShell;
+  UserCommandQueue queue(realShell);
+  unsigned int pat;
+
+  uint32_t seed = static_cast<uint32_t>(time(0));
+  pat = patternGenerator(seed);
+  if (!queue.enqueueFullWrite(pat)) return false;
+  if (!queue.enqueueFullRead()) return false;
+  if (!queue.enqueueFlush()) return false;
 
   return queue.flush();
 }

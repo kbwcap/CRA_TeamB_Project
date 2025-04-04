@@ -13,6 +13,7 @@ int main() {
   testManager.registerTest("2_PartialLBAWrite", Test_PartialLBAWrite_2);
   testManager.registerTest("3_WriteReadAging", Test_WriteReadAging_3);
   testManager.registerTest("4_EraseAndWriteAging", Test_EraseAndWriteAging_4);
+  testManager.registerTest("5_FullWriteFullReadFlush", Test_FullWriteFullReadFlush_5);
 
   ShellTest shellTest{&testManager};
   while (true) {
