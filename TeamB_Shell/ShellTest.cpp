@@ -9,74 +9,37 @@ void ShellTest::executeCommand(const std::string &input) {
   std::string command;
   iss >> command;
 
-  if (command == "write") {
-    if (!executeWrite(iss)) std::cout << invalid_command;
-    return;
-  } else if (command == "read") {
-    if (!executeRead(iss)) std::cout << invalid_command;
-    return;
-  } else if (command == "exit") {
+  bool isValidCommand = true;
+
+  if (command == "write")
+    isValidCommand = executeWrite(iss);
+  else if (command == "read")
+    isValidCommand = executeRead(iss);
+  else if (command == "exit")
     exit(0);
-  } else if (command == "help") {
+  else if (command == "help")
     printHelp();
-    return;
-  } else if (command == "fullwrite") {
-    if (!executeFullWrite(iss)) std::cout << invalid_command;
-    return;
-  } else if (command == "fullread") {
-    if (!executeFullRead(iss)) std::cout << invalid_command;
-    return;
-  } else if (command == "erase") {
-    if (!executeErase(iss)) std::cout << invalid_command;
-    return;
-  } else if (command == "erase_range") {
-    if (!executeEraseRange(iss)) std::cout << invalid_command;
-    return;
-  } else if (command == "flush") {
-    if (!executeFlush(iss)) std::cout << invalid_command;
-    return;
-  } else if (command == script_file_name) {
+  else if (command == "fullwrite")
+    isValidCommand = executeFullWrite(iss);
+  else if (command == "fullread")
+    isValidCommand = executeFullRead(iss);
+  else if (command == "erase")
+    isValidCommand = executeErase(iss);
+  else if (command == "erase_range")
+    isValidCommand = executeEraseRange(iss);
+  else if (command == "flush")
+    isValidCommand = executeFlush(iss);
+  else if (command == script_file_name)
     runner();
-  } else {
+  else {
     int status = testManager->runTest(input);
-    if (status == testManager->NO_TC) {
-      std::cout << invalid_command;
-    } else {
+    if (status == testManager->NO_TC)
+      isValidCommand = false;
+    else
       std::cout << "status " << status << "\n";
-    }
-    return;
-  }
-}
-
-void ShellTest::printHelp() { std::cout << help_command << std::endl; }
-
-void ShellTest::runner() {
-  std::ifstream file(script_file_name);
-  if (!file.is_open()) {
-    throw std::ios_base::failure("Failed to open file: " + script_file_name);
   }
 
-  std::vector<std::string> testScripts;
-  std::string testcase;
-  while (std::getline(file, testcase)) {
-    std::cout << testcase;
-    testScripts.push_back(testcase);
-  }
-  file.close();
-
-  int status;
-  for (const auto &testcase : testScripts) {
-    status = testManager->runTest(testcase);
-    std::cout << testcase << "  ----  Run...";
-    if (status == testManager->FAIL) {
-      std::cout << "FAIL!\n";
-      return;
-    } else if (status == testManager->NO_TC) {
-      return;
-    }
-    std::cout << "PASS\n";
-  }
-  return;
+  if (!isValidCommand) std::cout << invalid_command;
 }
 
 bool ShellTest::executeWrite(std::istringstream &iss) {
@@ -111,6 +74,8 @@ bool ShellTest::executeRead(std::istringstream &iss) {
   logger.print(func_execute_read, status_finish);
   return true;
 }
+
+void ShellTest::printHelp() { std::cout << help_command << std::endl; }
 
 bool ShellTest::executeFullWrite(std::istringstream &iss) {
   logger.print(func_execute_fullwrite, status_start);
@@ -176,7 +141,7 @@ bool ShellTest::executeEraseRange(std::istringstream &iss) {
 
   if (startLbaNum > endLbaNum) {
     logger.print(func_execute_erase_range,
-                 "[Invalid] Start LBA bigger than End LBA");
+                 "[Invalid] Start LBA bigger than End LBA.");
     std::cout << err_start_bigger_than_end;
     return false;
   }
@@ -201,13 +166,42 @@ bool ShellTest::executeFlush(std::istringstream &iss) {
   return true;
 }
 
+void ShellTest::runner() {
+  std::ifstream file(script_file_name);
+  if (!file.is_open()) {
+    throw std::ios_base::failure("Failed to open file: " + script_file_name);
+  }
+
+  std::vector<std::string> testScripts;
+  std::string testcase;
+  while (std::getline(file, testcase)) {
+    std::cout << testcase;
+    testScripts.push_back(testcase);
+  }
+  file.close();
+
+  int status;
+  for (const auto &testcase : testScripts) {
+    status = testManager->runTest(testcase);
+    std::cout << testcase << "  ----  Run...";
+    if (status == testManager->FAIL) {
+      std::cout << "FAIL!\n";
+      return;
+    } else if (status == testManager->NO_TC) {
+      return;
+    }
+    std::cout << "PASS\n";
+  }
+  return;
+}
+
 std::string ShellTest::getOutput() { return readFromFile(output_file_name); }
 
 std::string ShellTest::readFromFile(const std::string &output_file_name) {
   std::ifstream file(output_file_name);
 
   if (!file.is_open()) {
-    logger.print("readFromFile()", "[ERROR] output file can not open");
+    logger.print("readFromFile()", "[Error] output file can not open.");
     throw std::ios_base::failure("Failed to open file: " + output_file_name);
   }
 
@@ -234,7 +228,7 @@ void ShellTest::sendEraseCommand(long long sizeNum, int lbaNum) {
 
 bool ShellTest::checkValidArgument(std::string &trashStr) {
   if (trashStr.length() > 0) {
-    logger.print("checkValidArgument()", "[Invalid] Too many arguments");
+    logger.print("checkValidArgument()", "[Invalid] Too many arguments.");
     return false;
   }
   return true;
@@ -242,12 +236,12 @@ bool ShellTest::checkValidArgument(std::string &trashStr) {
 
 bool ShellTest::checkValidLba(std::string &lbaStr) {
   if (lbaStr.length() < 0 || lbaStr.length() >= 3) {
-    logger.print("checkValidLba()", "[Invalid] LBA is invalid");
+    logger.print("checkValidLba()", "[Invalid] LBA is invalid.");
     return false;
   }
   for (char lbaChar : lbaStr)
     if (lbaChar < '0' || lbaChar > '9') {
-      logger.print("checkValidLba()", "[Invalid] LBA is invalid");
+      logger.print("checkValidLba()", "[Invalid] LBA is invalid.");
       return false;
     }
   return true;
@@ -255,19 +249,20 @@ bool ShellTest::checkValidLba(std::string &lbaStr) {
 
 bool ShellTest::checkValidValue(std::string &valueStr) {
   if (valueStr.length() != 10) {
-    logger.print("checkValidValue()", "[Invalid] Value must be 10 in length");
+    logger.print("checkValidValue()", "[Invalid] Value must be 10 in length.");
     return false;
   }
   if (valueStr[0] != '0' || valueStr[1] != 'x') {
-    logger.print("checkValidValue()", "[Invalid] Value must be start with 0x");
+    logger.print("checkValidValue()", "[Invalid] Value must be start with 0x.");
     return false;
   }
+  // 0x를 제외한 8자리의 유효성 검사
   std::string valueStrSub = valueStr.substr(2);
   for (char valueChar : valueStrSub)
     if ((valueChar < '0' || valueChar > '9') &&
         (valueChar < 'A' || valueChar > 'F') &&
         (valueChar < 'a' || valueChar > 'f')) {
-      logger.print("checkValidValue()", "[Invalid] Value is invalid");
+      logger.print("checkValidValue()", "[Invalid] Value is invalid.");
       return false;
     }
   return true;
@@ -277,18 +272,18 @@ bool ShellTest::checkValidSize(std::string &sizeStr) {
   // long long 이상인 경우
   if (sizeStr.length() >= 19) {
     std::cout << err_too_big_size;
-    logger.print("checkValidSize()", "[Invalid] Size is too big");
+    logger.print("checkValidSize()", "[Invalid] Size is too big.");
     return false;
   }
   if (sizeStr[0] < '1' || sizeStr[0] > '9') {
     logger.print("checkValidSize()",
-                 "[Invalid] Size must be a number that does not start with 0");
+                 "[Invalid] Size must be a number that does not start with 0.");
     return false;
   }
 
   for (char valueChar : sizeStr)
     if (valueChar < '0' || valueChar > '9') {
-      logger.print("checkValidSize()", "[Invalid] Size must be a number");
+      logger.print("checkValidSize()", "[Invalid] Size must be a number.");
       return false;
     }
   return true;

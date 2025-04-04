@@ -13,8 +13,8 @@ const std::string func_execute_fullread = "executeFullRead()";
 const std::string func_execute_erase = "executeErase()";
 const std::string func_execute_erase_range = "executeEraseRange()";
 const std::string func_execute_flush = "executeFlush()";
-const std::string status_start = "started";
-const std::string status_finish = "finished";
+const std::string status_start = "Started.";
+const std::string status_finish = "Finished.";
 
 const std::string write_done = "[Write] Done\n";
 const std::string read_done = "[Read] ";
