@@ -4,14 +4,21 @@
 #include "VirtualSSD.h"
 
 VirtualSSD::VirtualSSD(const std::string& nand, const std::string& out)
-  : nand_file(nand), out_file(out) {
+  : nand_file(nand), out_file(out), commandBuffer(*this) {
   for (int i = 0; i < MAX_RANGE_NUM; ++i) {
     storage[i] = 0;
   }
+  commandBuffer.reloadFromCommandFile();
   loadStorageFromFile();
 }
 
 bool VirtualSSD::executeCommand(std::shared_ptr<ICommand> command) {
+  if (auto writeCommand = dynamic_cast<WriteCommand*>(command.get())) {
+    commandBuffer.addCommand(command);
+  }
+  else if (auto eraseCommand = dynamic_cast<EraseCommand*>(command.get())) {
+    commandBuffer.addCommand(command);
+  }
   return command->execute();
 }
 
@@ -25,7 +32,7 @@ uint32_t VirtualSSD::getData(int lba) const {
 
 bool VirtualSSD::saveStorageToFile() {
   std::ofstream outFile(nand_file, std::ios::trunc);
-
+  
   if (outFile.is_open()) {
     for (int lba = 0; lba < MAX_RANGE_NUM; ++lba) {
       if (storage[lba]) {

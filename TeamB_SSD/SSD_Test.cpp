@@ -4,7 +4,6 @@
 #include "EraseCommand.h"
 #include "WriteCommand.h"
 #include "FlushCommand.h"
-#include "EraseCommand.h"
 #include "ReadCommand.h"
 
 using namespace testing;
@@ -12,6 +11,11 @@ using namespace testing;
 class CommandFixture : public Test {
  protected:
   VirtualSSD ssd;
+
+  void SetUp() override {
+    ssd.clearCommandBuff();
+  }
+
   std::shared_ptr<ICommand> makeCommand(char cmd, int lba, uint32_t value) {
     std::shared_ptr<ICommand> ret;
     if (cmd == 'W') {
@@ -27,7 +31,7 @@ class CommandFixture : public Test {
   }
 
   void executeAndExpectTRUE(char cmd, int lba = 0, uint32_t value = 0) {
-    std::shared_ptr<ICommand> Command = makeCommand(cmd, lba, value);
+    std::shared_ptr<ICommand> Command = makeCommand(cmd, lba, value); 
     bool ret = ssd.executeCommand(Command);
     EXPECT_TRUE(ret);
   }

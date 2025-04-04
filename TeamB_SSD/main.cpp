@@ -56,7 +56,7 @@ bool processRead(int num, VirtualSSD& ssd) {
   return ssd.executeCommand(std::make_shared<ReadCommand>(ssd, num));
 }
 
-bool flushRead(VirtualSSD& ssd) {
+bool processFlush(VirtualSSD& ssd) {
   return ssd.executeCommand(std::make_shared<FlushCommand>(ssd));
 }
 
@@ -72,7 +72,6 @@ bool parseArguments(int argc, char* argv[], char& mode, int& num,
   }
 
   mode = argv[1][0];
-  num = std::atoi(argv[2]);
 
   if (mode == 'W') {
     if (argc != 4) {
@@ -80,14 +79,16 @@ bool parseArguments(int argc, char* argv[], char& mode, int& num,
                 << std::endl;
       return false;
     }
+    num = std::atoi(argv[2]);
     hexStr = argv[3];
   } else if (mode == 'R') {
     if (argc != 3) {
       std::cerr << "For 'R' mode, provide 1 argument: <int>" << std::endl;
       return false;
     }
+    num = std::atoi(argv[2]);
   } else if (mode == 'F') {
-    if (argc != 1) {
+    if (argc != 2) {
       std::cerr << "For 'F' mode, require no argument" << std::endl;
       return false;
     }
@@ -96,6 +97,7 @@ bool parseArguments(int argc, char* argv[], char& mode, int& num,
       std::cerr << "For 'E' mode, provide 1 argument: <int>" << std::endl;
       return false;
     }
+    num = std::atoi(argv[2]);
     size = std::atoi(argv[3]);
   } else {
     std::cerr << "Invalid mode. Use 'W' for write or 'R' for read."
@@ -122,15 +124,13 @@ int main(int argc, char* argv[]) {
   }
 
   if (mode == 'W') {
-    return processWrite(num, hexStr, ssd) ? 0 : 1;
+    return processWrite(num, hexStr, ssd);
   } else if (mode == 'R') {
     return processRead(num, ssd);
   } else if (mode == 'F') {
-    return flushRead(ssd);
+    return processFlush(ssd);
   } else if (mode == 'E') {
-    processErase(num, size, ssd);
-    return 0;
+    return processErase(num, size, ssd);
   }
-
 #endif
 }

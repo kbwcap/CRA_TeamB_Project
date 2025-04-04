@@ -4,9 +4,10 @@
 
 class EraseCommand : public ICommand {
 public:
-  EraseCommand(VirtualSSD& ssd, int lba, int size);  // 생성자 선언만
-  bool execute() override;  // execute 함수 선언만
-
+  EraseCommand(VirtualSSD& ssd, int lba, int size);
+  bool execute() override;
+  int getLBA() const;
+  uint32_t getSize() const;
 private:
   int lba;
   int size;
