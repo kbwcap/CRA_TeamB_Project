@@ -26,13 +26,13 @@ class ShellTest : public IShell {
  private:
   void printHelp();
   void runner();
-  bool excuteWrite(std::istringstream &iss);
-  bool excuteRead(std::istringstream &iss);
-  bool excuteFullWrite(std::istringstream &iss);
-  bool excuteFullRead(std::istringstream &iss);
-  bool excuteErase(std::istringstream &iss);
-  bool excuteEraseRange(std::istringstream &iss);
-  bool excuteFlush(std::istringstream &iss);
+  bool executeWrite(std::istringstream &iss);
+  bool executeRead(std::istringstream &iss);
+  bool executeFullWrite(std::istringstream &iss);
+  bool executeFullRead(std::istringstream &iss);
+  bool executeErase(std::istringstream &iss);
+  bool executeEraseRange(std::istringstream &iss);
+  bool executeFlush(std::istringstream &iss);
   void sendEraseCommand(long long sizeNum, int lbaNum);
   bool checkValidArgument(std::string &trashStr);
   bool checkValidLba(std::string &lbaStr);
