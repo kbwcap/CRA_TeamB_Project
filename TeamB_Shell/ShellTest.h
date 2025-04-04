@@ -24,15 +24,15 @@ class ShellTest : public IShell {
   std::string readFromFile(const std::string &file);
 
  private:
-  void printHelp();
-  void runner();
   bool executeWrite(std::istringstream &iss);
   bool executeRead(std::istringstream &iss);
+  void printHelp();
   bool executeFullWrite(std::istringstream &iss);
   bool executeFullRead(std::istringstream &iss);
   bool executeErase(std::istringstream &iss);
   bool executeEraseRange(std::istringstream &iss);
   bool executeFlush(std::istringstream &iss);
+  void runner();
   void sendEraseCommand(long long sizeNum, int lbaNum);
   bool checkValidArgument(std::string &trashStr);
   bool checkValidLba(std::string &lbaStr);
