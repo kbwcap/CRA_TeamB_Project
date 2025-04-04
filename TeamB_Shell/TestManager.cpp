@@ -326,7 +326,7 @@ bool Test_WriteReadAging_3() {
 
 bool Test_EraseAndWriteAging_4() {
   ShellTest realShell;
-  UserCommandQueueMock queue(realShell);
+  UserCommandQueue queue(realShell);
 
   const int maxLoopCount = 30;
   const int len = 2;
@@ -351,7 +351,7 @@ bool Test_EraseAndWriteAging_4() {
 
 bool Test_FullWriteFullReadFlush_5() {
   ShellTest realShell;
-  UserCommandQueueMock queue(realShell);
+  UserCommandQueue queue(realShell);
   unsigned int pat;
 
   uint32_t seed = static_cast<uint32_t>(time(0));
