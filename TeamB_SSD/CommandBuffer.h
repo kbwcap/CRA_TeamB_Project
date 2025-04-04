@@ -18,6 +18,7 @@ public:
 
   ~CommandBuffer();
 
+  void removeSameCommmand(std::shared_ptr<ICommand> command);
   void addCommand(std::shared_ptr<ICommand> command);
   void executeCommand();
   void clear();

@@ -85,3 +85,10 @@ TEST_F(CommandFixture, basic_SSD_test_Erase_0_20) {
  TEST_F(CommandFixture, basic_SSD_testR_Read_Buffer_102) {
   executeAndExpectTRUE('R', 3, 0xAAAABBBB);
  }
+
+TEST_F(CommandFixture, basic_SSD_test_Write_ignore_1) {
+  executeAndExpectTRUE('W', 97, 0x1234ABCE);
+  executeAndExpectTRUE('W', 17, 0x1234ABCE);
+  executeAndExpectTRUE('W', 17, 0x1234ABCa);
+  executeAndExpectTRUE('W', 97, 0x1234A111);
+}
