@@ -1,6 +1,6 @@
 #pragma once
-#include "../RegisterHelper.h"
-#include "../UserCommandQueue.h"
+#include "UserCommandQueue.h"
+#include "ShellTest.h"
 
 bool Test_PartialLBAWrite_2() {
   ShellTest realShell;
@@ -25,5 +25,3 @@ bool Test_PartialLBAWrite_2() {
 
   return queue.flush();
 }
-
-REGISTER_TEST("2_PartialLBAWrite", Test_PartialLBAWrite_2);

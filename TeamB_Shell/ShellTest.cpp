@@ -61,8 +61,8 @@ void ShellTest::runner() {
 
   int status;
   for (const auto &testcase : testScripts) {
+    std::cout << testcase << "  ----  Run...\n";
     status = TestManager::instance().runTest(testcase);
-    std::cout << testcase << "  ----  Run...";
     if (status == TestManager::instance().FAIL) {
       std::cout << "FAIL!\n";
       return;

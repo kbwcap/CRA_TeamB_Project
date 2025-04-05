@@ -1,6 +1,6 @@
 #pragma once
-#include "../RegisterHelper.h"
-#include "../UserCommandQueue.h"
+#include "UserCommandQueue.h"
+#include "ShellTest.h"
 
 bool Test_FullWriteFullReadFlush_5() {
   ShellTest realShell;
@@ -15,5 +15,3 @@ bool Test_FullWriteFullReadFlush_5() {
 
   return queue.flush();
 }
-
-REGISTER_TEST("5_FullWriteFullReadFlush", Test_FullWriteFullReadFlush_5);

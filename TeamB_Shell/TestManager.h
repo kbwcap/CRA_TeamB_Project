@@ -17,6 +17,7 @@ class TestManager {
  public:
   static TestManager& instance();
   void clearTests();
+  void loadTestSuitesDLL();
   void registerTest(const string& name, TestFn func);
   int runTest(const string& name);
   vector<string> listTests();
