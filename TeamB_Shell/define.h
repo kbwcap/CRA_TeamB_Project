@@ -56,3 +56,4 @@ const std::string help_command =
 )";
 
 const std::string script_file_name = "shell_scripts.txt";
+const std::string test_suite_dll_name = "test_suite.dll";
