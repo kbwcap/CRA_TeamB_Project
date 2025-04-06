@@ -2,11 +2,14 @@
 
 #include "TestManager.h"
 
+#include <Windows.h>
+
 #include <ctime>
 #include <iostream>
 
 #include "MockShell.h"
 #include "UserCommandQueue.h"
+#include "define.h"
 #include "gmock/gmock.h"
 using ::testing::NiceMock;
 using ::testing::Return;
@@ -18,8 +21,24 @@ TestManager& TestManager::instance() {
   return instance;
 }
 
-void TestManager::clearTests() {
-    testCases.clear();
+void TestManager::clearTests() { testCases.clear(); }
+
+void TestManager::loadTestSuitesDLL() {
+  HMODULE hModule = LoadLibraryA(test_suite_dll_name.c_str());
+  if (!hModule) {
+    std::cout << "Fail to Load test_suites\n";
+    return;
+  }
+
+  typedef void (*RegisterTestsFunc)(TestManager*);
+  RegisterTestsFunc registerTests =
+      (RegisterTestsFunc)GetProcAddress(hModule, "registerTests");
+
+  if (registerTests) {
+    registerTests(&TestManager::instance());
+  } else {
+    std::cout << "registerTests() Fail\n";
+  }
 }
 
 void TestManager::registerTest(const string& name, TestFn func) {
@@ -195,15 +214,15 @@ class TestScriptFixture : public Test {
   void registerAllTestcases() {
     TestManager::instance().clearTests();
     TestManager::instance().registerTest("1_FullWriteAndReadCompare_Mock",
-                             TestMock_FullWriteAndReadCompare_1);
+                                         TestMock_FullWriteAndReadCompare_1);
     TestManager::instance().registerTest("2_PartialLBAWrite_Mock",
-                             TestMock_PartialLBAWrite_2);
+                                         TestMock_PartialLBAWrite_2);
     TestManager::instance().registerTest("3_WriteReadAging_Mock",
-                             TestMock_WriteReadAging_3);
+                                         TestMock_WriteReadAging_3);
     TestManager::instance().registerTest("4_EraseAndWriteAging_Mock",
-                             TestMock_EraseAndWriteAging_4);
+                                         TestMock_EraseAndWriteAging_4);
     TestManager::instance().registerTest("5_FullWriteFullReadFlush_Mock",
-                             TestMock_FullWriteFullReadFlush_5);
+                                         TestMock_FullWriteFullReadFlush_5);
   }
 
   void runTestcase(const std::string& testName) {

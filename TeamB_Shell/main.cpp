@@ -7,6 +7,7 @@ int main() {
   return RUN_ALL_TESTS();
 #endif
 
+  TestManager::instance().loadTestSuitesDLL();
   ShellTest shellTest{};
   while (true) {
     std::string input;
@@ -14,4 +15,6 @@ int main() {
     std::getline(std::cin, input);
     shellTest.executeCommand(input);
   }
+
+  return 0;
 }
