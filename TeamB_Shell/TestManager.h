@@ -1,4 +1,6 @@
-#pragma once
+
+#ifndef TESTMANAGER_H
+#define TESTMANAGER_H
 #include <map>
 #include <string>
 #include <vector>
@@ -17,6 +19,7 @@ class TestManager {
  public:
   static TestManager& instance();
   void clearTests();
+  void loadTestSuitesDLL();
   void registerTest(const string& name, TestFn func);
   int runTest(const string& name);
   vector<string> listTests();
@@ -25,6 +28,10 @@ class TestManager {
   const int NO_TC = 2;
 
  private:
+  TestManager() {};
+  TestManager& operator=(const TestManager& other) = delete;
+  TestManager(const TestManager& other) = delete;
+
   map<string, TestFn> testCases;
 };
 
@@ -41,3 +48,5 @@ bool TestMock_PartialLBAWrite_2();
 bool TestMock_WriteReadAging_3();
 bool TestMock_EraseAndWriteAging_4();
 bool TestMock_FullWriteFullReadFlush_5();
+
+#endif

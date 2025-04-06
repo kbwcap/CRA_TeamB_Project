@@ -1,6 +1,6 @@
 #pragma once
-#include "../RegisterHelper.h"
-#include "../UserCommandQueue.h"
+#include "UserCommandQueue.h"
+#include "ShellTest.h"
 
 bool Test_FullWriteAndReadCompare_1() {
   ShellTest realShell;
@@ -27,5 +27,3 @@ bool Test_FullWriteAndReadCompare_1() {
   }
   return true;
 }
-
-REGISTER_TEST("1_FullWriteAndReadCompare", Test_FullWriteAndReadCompare_1);

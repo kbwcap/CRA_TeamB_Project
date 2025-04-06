@@ -1,6 +1,6 @@
 #pragma once
-#include "../RegisterHelper.h"
-#include "../UserCommandQueue.h"
+#include "UserCommandQueue.h"
+#include "ShellTest.h"
 
 bool Test_EraseAndWriteAging_4() {
   ShellTest realShell;
@@ -26,5 +26,3 @@ bool Test_EraseAndWriteAging_4() {
 
   return queue.flush();
 }
-
-REGISTER_TEST("4_EraseAndWriteAging", Test_EraseAndWriteAging_4);
