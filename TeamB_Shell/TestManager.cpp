@@ -1,12 +1,10 @@
 #pragma once
 
-#include "TestManager.h"
-
 #include <Windows.h>
-
 #include <ctime>
 #include <iostream>
 
+#include "TestManager.h"
 #include "MockShell.h"
 #include "UserCommandQueue.h"
 #include "define.h"
@@ -50,7 +48,6 @@ int TestManager::runTest(const string& name) {
     return (testCases[name]()) ? PASS : FAIL;
   }
 
-  // 없으면 prefix 매칭 탐색
   for (const auto& pair : testCases) {
     if (pair.first.rfind(name, 0) == 0) {
       return (pair.second()) ? PASS : FAIL;
@@ -68,10 +65,6 @@ vector<string> TestManager::listTests() {
   return names;
 }
 
-// ======================
-// ReadCompare
-// ======================
-
 uint32_t patternGenerator(uint32_t& state) {
   state ^= state << 13;
   state ^= state >> 17;
@@ -81,10 +74,7 @@ uint32_t patternGenerator(uint32_t& state) {
 
 string toHexString(unsigned int value) {
   std::ostringstream ss;
-  ss << "0x" << std::uppercase  // 대문자 A~F
-     << std::hex                // 16진수 출력
-     << std::setfill('0')       // 빈 자리는 0으로 채움
-     << std::setw(8)            // 8자리 고정
+  ss << "0x" << std::uppercase << std::hex << std::setfill('0') << std::setw(8)
      << value;
   return ss.str();
 }
@@ -125,12 +115,10 @@ bool TestMock_PartialLBAWrite_2() {
   for (int loop = 0; loop < loopCount; ++loop) {
     unsigned int pattern = patternGenerator(seed);
 
-    // Write sequence
     for (int lba : lbaOrder) {
       if (!queue.enqueueWrite(lba, pattern)) return false;
     }
 
-    // ReadCompare sequence
     for (int lba : lbaOrder) {
       if (!queue.enqueueRead(lba, pattern)) return false;
     }
@@ -268,7 +256,6 @@ class TestScriptFixture : public Test {
   }
 };
 
-// TestScripts
 TEST_F(TestScriptFixture, RunTestAll) {
   registerAllTestcases();
   runAllTestcases();
