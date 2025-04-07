@@ -12,11 +12,10 @@
 
 namespace fs = std::filesystem;
 
-CommandBuffer::CommandBuffer(VirtualSSD& ssd, const std::string& bufferFile,
+CommandBuffer::CommandBuffer(VirtualSSD& ssd,
                              const std::string& bufferFolder)
     : ssd(ssd),
       commandCount(0),
-      bufferFile(bufferFile),
       bufferFolder(bufferFolder) {
   initializeBufferFolder();
 }
@@ -236,88 +235,59 @@ void CommandBuffer::addCommand(std::shared_ptr<ICommand> command) {
   }
 }
 
-void CommandBuffer::reloadFromCommandFile() {
-  std::ifstream file(bufferFile);
-
-  if (!file.is_open()) return;
-
-  std::string line;
-  while (std::getline(file, line)) {
-    std::istringstream iss(line);
-    std::string commandType;
-    int lba;
-    uint32_t dataOrSize;
-
-    if (iss >> commandType >> lba >> dataOrSize) {
-      std::shared_ptr<ICommand> command = nullptr;
-      if (commandType == WRITE) {
-        command = std::make_shared<WriteCommand>(ssd, lba, dataOrSize);
-        addCommand(command);
-      } else if (commandType == ERASE) {
-        command = std::make_shared<EraseCommand>(ssd, lba, dataOrSize);
-        addCommand(command);
-      }
-    }
-  }
-  file.close();
-  clearCommandFile();
-  executeCommand();
-}
-
 void CommandBuffer::reloadFromBufferFolderCommandFile() {
-  for (int i = 1; i <= MAX_COMMANDS; ++i) {
-    std::string fileName = "buffer/" + std::to_string(i) + "_empty";
-    std::ifstream file(fileName);
+  std::stringstream ss;
+  ss << bufferFolder << "\\";
 
-    if (!file.is_open()) continue;
+  for (const auto& entry : fs::directory_iterator(bufferFolder)) {
 
-    std::string line;
-    while (std::getline(file, line)) {
-      std::istringstream iss(line);
-      std::string commandType;
-      int lba;
-      uint32_t dataOrSize;
+    if (entry.is_regular_file()) {
+      std::string oldFileName = entry.path().string();
 
-      if (iss >> commandType >> lba >> dataOrSize) {
+      size_t pos = oldFileName.find('\\');
+      if (pos == std::string::npos) {
+        return;
+      }
+      std::string payload = oldFileName.substr(pos + 1);
+
+      std::vector<std::string> tokens;
+      std::stringstream ss1(payload);
+      std::string token;
+
+      while (std::getline(ss1, token, '_')) {
+        tokens.push_back(token);
+      }
+
+      if (tokens.size() >= 4) {
+        std::string commandType = tokens[1];
+        int lba = std::stoi(tokens[2]);
+        long long dataOrSize = std::stoll(tokens[3]);
         std::shared_ptr<ICommand> command = nullptr;
         if (commandType == "W") {
           command = std::make_shared<WriteCommand>(ssd, lba, dataOrSize);
-          // addCommand(command);
-          std::cout << "Loaded WriteCommand: W " << lba << " 0x" << std::hex
-                    << dataOrSize << std::endl;
-        } else if (commandType == "E") {
+          addCommand(command);
+        }
+        else if (commandType == "E") {
           command = std::make_shared<EraseCommand>(ssd, lba, dataOrSize);
-          // addCommand(command);
-          std::cout << "Loaded EraseCommand: E " << lba << " " << dataOrSize
-                    << std::endl;
+          addCommand(command);
         }
       }
     }
-    file.close();
   }
+  executeCommand();
 }
 
 void CommandBuffer::saveCommandToFile() {
-  std::ofstream file(bufferFile, std::ios::trunc);
-  if (file.is_open()) {
-    for (int i = 0; i < commandCount; ++i) {
-      std::stringstream ss;
-      if (auto writeCommand =
-              dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
-        ss << "W " << writeCommand->getLBA() << " " << writeCommand->getData()
-           << std::endl;
-        updateBufferFile(i, WRITE, writeCommand->getLBA(),
-                         writeCommand->getData());
-      } else if (auto eraseCommand =
-                     dynamic_cast<EraseCommand*>(commandBuffer[i].get())) {
-        ss << "E " << eraseCommand->getLBA() << " " << eraseCommand->getSize()
-           << std::endl;
-        updateBufferFile(i, ERASE, eraseCommand->getLBA(),
-                         eraseCommand->getSize());
-      }
-      file << ss.str();
+  for (int i = 0; i < commandCount; ++i) {
+    if (auto writeCommand =
+            dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
+      updateBufferFile(i, WRITE, writeCommand->getLBA(),
+                        writeCommand->getData());
+    } else if (auto eraseCommand =
+                    dynamic_cast<EraseCommand*>(commandBuffer[i].get())) {
+      updateBufferFile(i, ERASE, eraseCommand->getLBA(),
+                        eraseCommand->getSize());
     }
-    file.close();
   }
 }
 
@@ -327,7 +297,6 @@ void CommandBuffer::clear() {
     commandBuffer[i] = nullptr;
     updateBufferFile(i, EMPTY, 0, 0);
   }
-  clearCommandFile();
 }
 
 void CommandBuffer::clearCommandFile() {

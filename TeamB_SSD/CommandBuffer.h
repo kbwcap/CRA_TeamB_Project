@@ -12,7 +12,6 @@
 class CommandBuffer {
 public:
   CommandBuffer(VirtualSSD& ssd,
-    const std::string& bufferFile = "command_buffer.txt",
     const std::string& bufferFolder = "buffer");
 
   ~CommandBuffer();
