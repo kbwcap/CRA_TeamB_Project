@@ -350,4 +350,5 @@ ___
   3_WriteReadAging
   4_EraseAndWriteAging
   5_FullWriteFullReadFlush
+  6_FullWriteEraseAllFlushFullRead
 ```
