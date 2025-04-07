@@ -140,38 +140,65 @@ std::shared_ptr<ICommand> CommandBuffer::setIgnoreMergeCommmand(
   }
 
   // Case 2: EraseCommand
-  else if (auto rEraseCommand = dynamic_cast<EraseCommand*>(command.get())) {
-    bool merged = false;
-    for (int i = 0; i < commandCount; ++i) {
-      if (auto w = dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
-        // erase가 write 범위를 포함하면 write 제거
-        if (isEraseInRange(w->getLBA(), 1, rEraseCommand->getLBA(), rEraseCommand->getSize())){
-          removeAtBuffer(i);
-        }
-      } 
-      else if (auto e = dynamic_cast<EraseCommand*>(commandBuffer[i].get())) {
-        if (isEraseInRange(e->getLBA(), e->getSize(), rEraseCommand->getLBA(), rEraseCommand->getSize())) {
-          removeAtBuffer(i);
-          continue;
-        }
-        else if(canMerge(rEraseCommand->getLBA(), rEraseCommand->getSize(), e->getLBA(), e->getSize())) {
-          removeAtBuffer(i);
-          int mergedLBA = my_min(rEraseCommand->getLBA(), e->getLBA());
-          int mergedEnd =
-              my_max(rEraseCommand->getLBA() + rEraseCommand->getSize() - 1,
-                       e->getLBA() + e->getSize() - 1);
-          int mergedSize = mergedEnd - mergedLBA + 1;
-          mergedSize = mergedSize > 10 ? 10 : mergedSize;
-          
-          command = std::make_shared<EraseCommand>(ssd, mergedLBA, mergedSize);
-          merged = true;
-        }
-      }
-    }
+   else if (auto rEraseCommand = dynamic_cast<EraseCommand*>(command.get())) {
+   bool merged = false;
+   for (int i = 0; i < commandCount; ++i) {
+     if (auto w = dynamic_cast<WriteCommand*>(commandBuffer[i].get())) {
+       // erase가 write 범위를 포함하면 write 제거
+       if (isEraseInRange(w->getLBA(), 1, rEraseCommand->getLBA(), rEraseCommand->getSize())){
+         removeAtBuffer(i);
+       }
+     } 
+     else if (auto e = dynamic_cast<EraseCommand*>(commandBuffer[i].get())) {
+       if (isEraseInRange(e->getLBA(), e->getSize(), rEraseCommand->getLBA(), rEraseCommand->getSize())) {
+         removeAtBuffer(i);
+         continue;
+       }
+       else if(canMerge(rEraseCommand->getLBA(), rEraseCommand->getSize(), e->getLBA(), e->getSize())) {
+         removeAtBuffer(i);
+         int mergedLBA = my_min(rEraseCommand->getLBA(), e->getLBA());
+         int mergedEnd =
+             my_max(rEraseCommand->getLBA() + rEraseCommand->getSize() - 1,
+                      e->getLBA() + e->getSize() - 1);
+         int mergedSize = mergedEnd - mergedLBA + 1;
+         //mergedSize = mergedSize > 10 ? 10 : mergedSize;
+         
+         // size가 10 초과일 경우 10개씩 잘라서 추가
+         if (mergedSize > 10) {
+           int offset = 0;
+           for (; offset + 10 <= mergedSize; offset += 10) {
+             int chunkLBA = mergedLBA + offset;
+             int chunkSize = 10;
+             auto chunkCommand =
+                 std::make_shared<EraseCommand>(ssd, chunkLBA, chunkSize);
+             addCommand(chunkCommand);
+           }
 
-    updateCommandBuffer();
-    return merged ? command : nullptr;
-  }
+           updateCommandBuffer();
+
+           // 마지막 남은 조각이 있을 경우 -> return
+           int remaining = mergedSize - offset;
+           if (remaining > 0) {
+             int chunkLBA = mergedLBA + offset;
+             int chunkSize = remaining;
+             return std::make_shared<EraseCommand>(ssd, chunkLBA, chunkSize);
+           }
+
+           // 다 나눠 넣었으면 아무 것도 반환하지 않음
+           return nullptr;
+         } else {
+           updateCommandBuffer();
+           command =
+               std::make_shared<EraseCommand>(ssd, mergedLBA, mergedSize);
+           merged = true;
+         }           
+       }
+     }
+   }
+
+   updateCommandBuffer();
+   return merged ? command : nullptr;
+ }
 
   return nullptr;
 }
