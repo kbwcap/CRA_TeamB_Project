@@ -161,7 +161,8 @@ std::shared_ptr<ICommand> CommandBuffer::setIgnoreMergeCommmand(
               my_max(rEraseCommand->getLBA() + rEraseCommand->getSize() - 1,
                        e->getLBA() + e->getSize() - 1);
           int mergedSize = mergedEnd - mergedLBA + 1;
-
+          mergedSize = mergedSize > 10 ? 10 : mergedSize;
+          
           command = std::make_shared<EraseCommand>(ssd, mergedLBA, mergedSize);
           merged = true;
         }
