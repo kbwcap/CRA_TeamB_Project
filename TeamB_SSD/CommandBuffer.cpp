@@ -161,7 +161,8 @@ std::shared_ptr<ICommand> CommandBuffer::setIgnoreMergeCommmand(
               my_max(rEraseCommand->getLBA() + rEraseCommand->getSize() - 1,
                        e->getLBA() + e->getSize() - 1);
           int mergedSize = mergedEnd - mergedLBA + 1;
-
+          mergedSize = mergedSize > 10 ? 10 : mergedSize;
+          
           command = std::make_shared<EraseCommand>(ssd, mergedLBA, mergedSize);
           merged = true;
         }
@@ -216,7 +217,7 @@ bool CommandBuffer::canMerge(int id1, int size1, int id2, int size2) {
   int end2 = id2 + size2 - 1;
 
   // 겹치거나 붙어 있는 경우
-  return !(end1 < start2 - 1 || end2 < start1 - 1);
+  return !(end1 < start2 || end2 < start1);
 }
 
 void CommandBuffer::addCommand(std::shared_ptr<ICommand> command) {
