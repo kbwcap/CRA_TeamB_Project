@@ -16,9 +16,11 @@ VirtualSSD::VirtualSSD(const std::string& nand, const std::string& out)
 bool VirtualSSD::executeCommand(std::shared_ptr<ICommand> command) {
   if (auto writeCommand = dynamic_cast<WriteCommand*>(command.get())) {
     commandBuffer.addCommand(command);
+    return true;
   }
   else if (auto eraseCommand = dynamic_cast<EraseCommand*>(command.get())) {
     commandBuffer.addCommand(command);
+    return true;
   }
   return command->execute();
 }
