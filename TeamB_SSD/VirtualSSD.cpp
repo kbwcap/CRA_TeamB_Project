@@ -8,7 +8,6 @@ VirtualSSD::VirtualSSD(const std::string& nand, const std::string& out)
   for (int i = 0; i < MAX_RANGE_NUM; ++i) {
     storage[i] = 0;
   }
-  commandBuffer.reloadFromCommandFile();
   commandBuffer.reloadFromBufferFolderCommandFile();
   loadStorageFromFile();
 }
