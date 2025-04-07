@@ -155,6 +155,7 @@
     <ClCompile Include="Test_FullWriteAndReadCompare_1.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)TeamB_Shell\;$(SolutionDir)packages\gmock.1.11.0\lib\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Include="Test_FullWriteEraseAllFlushFullRead_6.cpp" />
     <ClCompile Include="Test_FullWriteFullReadFlush_5.cpp" />
     <ClCompile Include="Test_PartialLBAWrite_2.cpp" />
     <ClCompile Include="Test_WriteReadAging_3.cpp" />
